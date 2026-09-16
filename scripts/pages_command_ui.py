@@ -33,7 +33,7 @@ JS = r'''
     ['chapter-investment','偏好与投入','官方偏好、进度与真实投入'],
     ['chapter-knowledge','知识与迁移','关注迁移、知识网络与画像'],
     ['chapter-reflection','回顾与反向阅读','Recall、Blindspot 与 Counter Reading'],
-    ['chapter-shelf','完整书架','498 本书搜索、过滤、Pin 队列'],
+    ['chapter-shelf','完整书架','完整书架搜索、过滤、Pin 队列'],
     ['chapter-boundary','数据边界','覆盖率、隐私与发布范围']
   ].map(x=>({kind:'chapter',id:x[0],title:x[1],meta:x[2]}));
   const books=(typeof E!=='undefined'&&E.bookshelf||[]).map(b=>({kind:'book',id:String(b.bookId||''),title:b.title||'未命名',meta:[b.author,b.category,b.progress==null?'进度未知':b.progress+'%',(b.noteCount||0)+' 条笔记'].filter(Boolean).join(' · '),book:b}));

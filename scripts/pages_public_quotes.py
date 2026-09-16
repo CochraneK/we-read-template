@@ -22,7 +22,7 @@ import re
 import pages_hidden_search_ui
 
 ROOT = Path(__file__).resolve().parents[1]
-DATA = ROOT / "data"
+DATA = Path(os.environ.get("WEREAD_DATA_DIR", ROOT / "data")).expanduser().resolve()
 SITE = ROOT / "site"
 MAX_CHARS = 90
 MAX_TOTAL = 48
@@ -208,7 +208,7 @@ def render_section(payload: dict) -> str:
         '<article class="card wide" id="public-quotes">'
         '<div class="title"><div><div class="section-kicker">Rotating public excerpts</div><h2>我的划线 · 随机轮播</h2></div>'
         f'<small>{candidates:,} 条候选 → 本轮 {len(items)} 条</small></div>'
-        '<p class="public-quote-policy">6,099 条授权公开划线已自动内置为搜索/重抽样索引；轮播本身仍每次只显示 48 条短摘录。无需手动导入文件。</p>'
+        '<p class="public-quote-policy">已授权公开的划线会内置为搜索/重抽样索引；轮播本身只显示受限短摘录。公开范围由当前配置与 publication policy 决定。</p>'
         f'<div class="public-quote-stage" id="publicQuotePlayer" data-quotes="{encoded}"><div class="public-quote-slide" id="publicQuoteSlide"></div></div>'
         '<div class="public-quote-controls"><button type="button" id="publicQuotePrev">上一条</button><button type="button" id="publicQuoteRandom"><span class="dice">●</span>随机一条</button><button type="button" id="publicQuoteResample"><span class="dice">●</span>重新抽样</button><button type="button" id="publicQuoteToggle" aria-pressed="false">暂停</button><span class="public-quote-counter" id="publicQuoteCounter"></span><button type="button" id="publicQuoteNext">下一条</button><button type="button" class="symbol-btn" id="publicQuoteSearchSymbol" aria-label="全量搜索" title="全量搜索">🔎</button></div>'
         '</article>'

@@ -1,0 +1,32 @@
+# OS / editor
+.DS_Store
+Thumbs.db
+__pycache__/
+*.pyc
+.venv/
+venv/
+*.swp
+*~
+
+# Secrets / local config
+.env
+.env.*
+!.env.example
+
+# Personal WeRead data: never commit raw account data
+data/*
+!data/.gitkeep
+.weread-data/
+*.sqlite
+
+# Generated artifacts
+site/*
+!site/.gitkeep
+reports/generated/
+quote_lib/*.json
+quote_lib/*.html
+quote_lib/*.zip
+
+# Temp
+*.tmp
+*.bak

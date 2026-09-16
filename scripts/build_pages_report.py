@@ -17,7 +17,7 @@ from collections import Counter, defaultdict
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-DATA = ROOT / "data"
+DATA = Path(os.environ.get("WEREAD_DATA_DIR", ROOT / "data")).expanduser().resolve()
 SITE = ROOT / "site"
 sys.path.insert(0, str(ROOT / "scripts"))
 

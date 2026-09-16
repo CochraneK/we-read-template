@@ -38,7 +38,7 @@ JS = r'''
     {id:'chapter-investment',key:'investment',n:'03',label:'偏好与投入',desc:'区分官方偏好、收藏意图、阅读进度与真实笔记投入。',items:['official','progress','fingerprint','deepreads','books','recent-books','category-summary','author-summary']},
     {id:'chapter-knowledge',key:'knowledge',n:'04',label:'知识与迁移',desc:'从年度关注变化进入跨书关系、深度投入和事实型画像。',items:['shift','focus','map','knowledge','depth-matrix','note-evolution','profile','investment']},
     {id:'chapter-reflection',key:'reflection',n:'05',label:'回顾与反向阅读',desc:'重新激活旧知识，同时看见收藏很多但投入较少的方向。',items:['recall','thinking','blindspot','counter']},
-    {id:'chapter-shelf',key:'shelf',n:'06',label:'完整书架',desc:'把 498 本书从静态数字变成可以搜索、过滤和排序的档案。',items:['shelf-explorer']},
+    {id:'chapter-shelf',key:'shelf',n:'06',label:'完整书架',desc:'把完整书架从静态数字变成可以搜索、过滤和排序的档案。',items:['shelf-explorer']},
     {id:'chapter-boundary',key:'boundary',n:'07',label:'数据边界',desc:'清楚标注覆盖率、私密书范围和哪些内容从未被公开。',items:['data-boundary']}
   ];
   const secondary=new Set(['notes-trend','season','mode','medals','recent-books','category-summary','author-summary','map','note-evolution','investment','thinking','counter']);
@@ -55,7 +55,7 @@ JS = r'''
   document.title='我的阅读档案 · WeRead Intelligence';
   const eyebrow=document.querySelector('.eyebrow');if(eyebrow)eyebrow.textContent='WeRead Intelligence · Personal Reading Archive';
   const heroTitle=document.querySelector('.hero h1');if(heroTitle)heroTitle.textContent='我的阅读档案';
-  const heroP=document.querySelector('.hero p');if(heroP)heroP.textContent='一份持续生长的个人阅读档案：从长期节律、年度迁移和真实投入，到跨书知识关系与 498 本完整书架。所有数值由数据计算；原始划线和想法正文不在公开页面出现。';
+  const heroP=document.querySelector('.hero p');if(heroP)heroP.textContent='一份持续生长的个人阅读档案：从长期节律、年度迁移和真实投入，到跨书知识关系与完整书架。所有数值由数据计算；原始划线和想法正文不在公开页面出现。';
   const s=D.summary||{};
   const strip=document.createElement('div');strip.className='hero-strip';
   const metrics=[['累计阅读',`${Number(s.totalHours||0).toFixed(1)}h`],['阅读天数',`${(+s.readDays||0).toLocaleString()} 天`],['完整书架',`${(+s.shelfBooks||0).toLocaleString()} 本`],['笔记证据',`${(+s.notes||0).toLocaleString()} 条`],['最长连续',`${+s.longestStreak||0} 天`]];

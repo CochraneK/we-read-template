@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/we-read/reading_map.schema.json",
+  "title": "WeRead Reading Map",
+  "type": "object",
+  "required": ["version", "nodes", "edges"],
+  "properties": {
+    "version": {"type": "string"},
+    "nodes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "label", "weight", "tier", "evidence"],
+        "properties": {
+          "id": {"type": "string", "minLength": 1},
+          "label": {"type": "string", "minLength": 1},
+          "summary": {"type": "string"},
+          "weight": {"type": "number", "minimum": 0},
+          "tier": {"enum": ["core", "secondary", "peripheral"]},
+          "confidence": {"type": "number", "minimum": 0, "maximum": 1},
+          "evidence": {"type": "array"},
+          "counterEvidence": {"type": "array"}
+        },
+        "additionalProperties": true
+      }
+    },
+    "edges": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["source", "target", "strength", "reason"],
+        "properties": {
+          "source": {"type": "string"},
+          "target": {"type": "string"},
+          "strength": {"type": "number", "minimum": 0},
+          "reason": {"type": "string"}
+        },
+        "additionalProperties": true
+      }
+    },
+    "insights": {"type": "array"},
+    "coverage": {"type": "object"}
+  },
+  "additionalProperties": true
+}

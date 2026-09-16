@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/CochraneK/we-read/schemas/alchemy_context.schema.json",
+  "title": "WeRead Private Alchemy Context",
+  "type": "object",
+  "required": ["version", "mode", "selector", "privacy", "coverage", "landscape", "books", "alchemyContract", "guardrails"],
+  "properties": {
+    "version": {"type": "string"},
+    "mode": {"enum": ["book", "topic"]},
+    "selector": {"type": "object"},
+    "privacy": {
+      "type": "object",
+      "required": ["containsRawEvidence", "publicPageSafe", "handling"],
+      "properties": {
+        "containsRawEvidence": {"const": true},
+        "publicPageSafe": {"const": false},
+        "handling": {"type": "string"}
+      }
+    },
+    "coverage": {
+      "type": "object",
+      "required": ["books", "marks", "reviews", "evidence"]
+    },
+    "landscape": {
+      "type": "object",
+      "required": ["byBook", "requiresScopeConfirmation", "scopeGateThreshold", "scopeGateReason"]
+    },
+    "books": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["bookId", "title", "author", "markCount", "reviewCount", "evidenceCount", "chapters"]
+      }
+    },
+    "alchemyContract": {
+      "type": "object",
+      "required": ["readyForSynthesis", "mustSeparateSourceAndUserThought", "sourceRole", "userRole", "singleBookNextSteps", "topicNextSteps"],
+      "properties": {
+        "readyForSynthesis": {"type": "boolean"},
+        "mustSeparateSourceAndUserThought": {"const": true},
+        "sourceRole": {"const": "mark/source_text"},
+        "userRole": {"const": "review/user_thought"}
+      }
+    },
+    "guardrails": {"type": "array", "items": {"type": "string"}, "minItems": 1}
+  }
+}

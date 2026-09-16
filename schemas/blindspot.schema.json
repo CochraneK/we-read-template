@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/we-read/blindspot.schema.json",
+  "title": "WeRead Blindspot and Counter Reading",
+  "type": "object",
+  "required": ["version", "blindspots"],
+  "properties": {
+    "version": {"type": "string"},
+    "summary": {"type": "string"},
+    "blindspots": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["label", "summary", "confidence", "evidence", "counterReadingDirections"],
+        "properties": {
+          "label": {"type": "string", "minLength": 1},
+          "summary": {"type": "string", "minLength": 1},
+          "confidence": {"type": "number", "minimum": 0, "maximum": 1},
+          "evidence": {"type": "array"},
+          "counterEvidence": {"type": "array"},
+          "counterReadingDirections": {"type": "array", "items": {"type": "string"}},
+          "questions": {"type": "array", "items": {"type": "string"}}
+        },
+        "additionalProperties": true
+      }
+    },
+    "questions": {"type": "array", "items": {"type": "string"}},
+    "coverage": {"type": "object"}
+  },
+  "additionalProperties": true
+}

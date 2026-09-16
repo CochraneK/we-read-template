@@ -1,0 +1,88 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/CochraneK/we-read/schemas/reading_path_context.schema.json",
+  "title": "WeRead Reading Path Context",
+  "type": "object",
+  "required": ["version", "topic", "topicTerms", "evidence", "levelAssessment", "pathContract", "nextStep", "guardrails"],
+  "properties": {
+    "version": {"type": "string"},
+    "generatedAt": {"type": "string"},
+    "topic": {"type": "string", "minLength": 1},
+    "topicTerms": {"type": "array", "items": {"type": "string"}, "minItems": 1},
+    "privacy": {"type": "object"},
+    "coverage": {"type": "object"},
+    "evidence": {
+      "type": "object",
+      "required": ["matchedBooks", "matchedBookCount", "notedBooks", "notedBookCount", "engagedBooks5Plus", "engagedBookCount", "alreadyRead3Plus", "alreadyReadCount"]
+    },
+    "levelAssessment": {
+      "type": "object",
+      "required": ["suggestedLevel", "reason", "requiresUserConfirmation", "suggestSwitchToAdvisor", "advancedRequiresContentEvidence", "allowedOverrides"],
+      "properties": {
+        "suggestedLevel": {"enum": ["zero", "beginner", "intermediate"]},
+        "reason": {"type": "string"},
+        "requiresUserConfirmation": {"const": true},
+        "suggestSwitchToAdvisor": {"type": "boolean"},
+        "advancedRequiresContentEvidence": {"const": true},
+        "allowedOverrides": {
+          "type": "array",
+          "items": {"enum": ["zero", "beginner", "intermediate", "advanced"]},
+          "minItems": 4,
+          "maxItems": 4
+        }
+      }
+    },
+    "pathContract": {
+      "type": "object",
+      "required": ["readyForBookSelection", "mustConfirmLevelBeforeSelection", "targetBookCount", "stages", "minimumVersionRequired", "timeEstimateRule", "availabilityRule"],
+      "properties": {
+        "readyForBookSelection": {"const": false},
+        "mustConfirmLevelBeforeSelection": {"const": true},
+        "targetBookCount": {
+          "type": "object",
+          "properties": {
+            "min": {"const": 6},
+            "max": {"const": 8}
+          },
+          "required": ["min", "max"]
+        },
+        "stages": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 3,
+          "items": {
+            "type": "object",
+            "required": ["id", "label", "purpose", "selectionRule", "targetBooks", "feynmanCheckpoint"]
+          }
+        },
+        "minimumVersionRequired": {"const": true},
+        "timeEstimateRule": {
+          "type": "object",
+          "required": ["wordsPerMinute", "requiresBookWordCounts", "requiresDailyHoursInputOrExplicitDefault"],
+          "properties": {
+            "wordsPerMinute": {"const": 300},
+            "requiresBookWordCounts": {"const": true},
+            "requiresDailyHoursInputOrExplicitDefault": {"const": true}
+          }
+        },
+        "availabilityRule": {
+          "type": "object",
+          "required": ["mustVerifyCurrentWereadAvailability", "firstStageAllUnavailableIsFailureSignal", "keepAlreadyReadInPositionButMarkAndSkip"],
+          "properties": {
+            "mustVerifyCurrentWereadAvailability": {"const": true},
+            "firstStageAllUnavailableIsFailureSignal": {"const": true},
+            "keepAlreadyReadInPositionButMarkAndSkip": {"const": true}
+          }
+        }
+      }
+    },
+    "nextStep": {
+      "type": "object",
+      "required": ["action", "message", "afterConfirmation"],
+      "properties": {
+        "action": {"const": "confirm_level"}
+      }
+    },
+    "guardrails": {"type": "array", "items": {"type": "string"}, "minItems": 1}
+  }
+}

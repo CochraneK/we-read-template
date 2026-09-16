@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/we-read/reading_report.schema.json",
+  "title": "WeRead Unified Reading Report Narrative",
+  "type": "object",
+  "required": ["version"],
+  "properties": {
+    "version": {"type": "string"},
+    "title": {"type": "string"},
+    "subtitle": {"type": "string"},
+    "period": {"type": "string"},
+    "summary": {"type": "string"},
+    "highlights": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["label", "value"],
+        "properties": {
+          "label": {"type": "string"},
+          "value": {"type": ["string", "number"]},
+          "detail": {"type": "string"}
+        },
+        "additionalProperties": true
+      }
+    },
+    "takeaways": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["title", "summary"],
+        "properties": {
+          "title": {"type": "string"},
+          "summary": {"type": "string"},
+          "evidence": {"type": "array"},
+          "confidence": {"type": "number", "minimum": 0, "maximum": 1}
+        },
+        "additionalProperties": true
+      }
+    },
+    "nextActions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["title"],
+        "properties": {
+          "title": {"type": "string"},
+          "reason": {"type": "string"}
+        },
+        "additionalProperties": true
+      }
+    }
+  },
+  "additionalProperties": true
+}

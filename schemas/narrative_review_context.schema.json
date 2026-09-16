@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/CochraneK/we-read/schemas/narrative_review_context.schema.json",
+  "title": "WeRead Narrative Review Context",
+  "type": "object",
+  "required": ["version", "period", "privacy", "readingTotals", "bookGroups", "summary", "narrativeCandidates", "limitations", "reviewContract", "nextStep"],
+  "properties": {
+    "version": {"type": "string"},
+    "period": {
+      "type": "object",
+      "required": ["start", "end", "days"]
+    },
+    "privacy": {
+      "type": "object",
+      "required": ["containsRawEvidence", "note"],
+      "properties": {
+        "containsRawEvidence": {"const": false}
+      }
+    },
+    "readingTotals": {
+      "type": "object",
+      "required": ["seconds", "hours", "activeDays", "dailyCoverageAvailable", "peakMonth", "monthlyHours"]
+    },
+    "bookGroups": {
+      "type": "object",
+      "required": ["completed", "reading", "shallow", "reread", "active_unknown"]
+    },
+    "summary": {
+      "type": "object",
+      "required": ["activeBooks", "completed", "reading", "shallow", "reread", "activeUnknown", "evidenceRichBooks", "lightOrNoNoteBooks"]
+    },
+    "narrativeCandidates": {
+      "type": "object",
+      "required": ["topByPeriodNotes", "topByCumulativeRecordedTime", "stalled30To70Percent", "topNoteCategories", "focusShiftCandidate"]
+    },
+    "limitations": {"type": "array", "items": {"type": "string"}, "minItems": 1},
+    "reviewContract": {
+      "type": "object",
+      "required": ["readyForNarrative", "requiresPlatformConfirmation", "selectedPlatform", "platformSpec", "supportedPlatforms", "mustIncludeContrast", "mustIncludeAtLeastOneImperfection", "mustSetSpecificNextPeriodGoal", "mustNotInventReasonsForFocusShiftOrAbandonment"],
+      "properties": {
+        "readyForNarrative": {"type": "boolean"},
+        "requiresPlatformConfirmation": {"type": "boolean"},
+        "mustIncludeContrast": {"const": true},
+        "mustIncludeAtLeastOneImperfection": {"const": true},
+        "mustSetSpecificNextPeriodGoal": {"const": true},
+        "mustNotInventReasonsForFocusShiftOrAbandonment": {"const": true}
+      }
+    },
+    "nextStep": {
+      "type": "object",
+      "required": ["action", "message"],
+      "properties": {
+        "action": {"enum": ["confirm_platform", "write_narrative"]}
+      }
+    }
+  }
+}

@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/we-read/cognitive_shift.schema.json",
+  "title": "WeRead Cognitive Shift",
+  "type": "object",
+  "required": ["version", "stages"],
+  "properties": {
+    "version": {"type": "string"},
+    "stages": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["label", "start", "end", "themes", "books", "evidence", "confidence"],
+        "properties": {
+          "id": {"type": "string"},
+          "label": {"type": "string", "minLength": 1},
+          "start": {"type": "string", "minLength": 4},
+          "end": {"type": "string", "minLength": 4},
+          "summary": {"type": "string"},
+          "themes": {"type": "array", "items": {"type": "string"}},
+          "books": {
+            "type": "array",
+            "items": {
+              "oneOf": [
+                {"type": "string"},
+                {
+                  "type": "object",
+                  "required": ["title"],
+                  "properties": {
+                    "title": {"type": "string"},
+                    "author": {"type": "string"},
+                    "bookId": {"type": "string"}
+                  },
+                  "additionalProperties": true
+                }
+              ]
+            }
+          },
+          "evidence": {"type": "array"},
+          "transition": {"type": "string"},
+          "confidence": {"type": "number", "minimum": 0, "maximum": 1}
+        },
+        "additionalProperties": true
+      }
+    },
+    "insights": {"type": "array", "items": {"type": "string"}},
+    "coverage": {"type": "object"}
+  },
+  "additionalProperties": true
+}

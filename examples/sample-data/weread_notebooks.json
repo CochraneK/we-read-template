@@ -1,0 +1,46 @@
+[
+  {
+    "bookId": "demo-systems",
+    "book": {
+      "bookId": "demo-systems",
+      "title": "Synthetic Systems Primer",
+      "author": "Demo Author A"
+    },
+    "noteCount": 3,
+    "reviewCount": 1,
+    "bookmarkCount": 1
+  },
+  {
+    "bookId": "demo-learning",
+    "book": {
+      "bookId": "demo-learning",
+      "title": "Learning Loops",
+      "author": "Demo Author B"
+    },
+    "noteCount": 2,
+    "reviewCount": 1,
+    "bookmarkCount": 0
+  },
+  {
+    "bookId": "demo-history",
+    "book": {
+      "bookId": "demo-history",
+      "title": "Imaginary Cities: A History",
+      "author": "Demo Author C"
+    },
+    "noteCount": 1,
+    "reviewCount": 0,
+    "bookmarkCount": 0
+  },
+  {
+    "bookId": "demo-private",
+    "book": {
+      "bookId": "demo-private",
+      "title": "Private Synthetic Notebook",
+      "author": "Demo Author D"
+    },
+    "noteCount": 1,
+    "reviewCount": 0,
+    "bookmarkCount": 0
+  }
+]

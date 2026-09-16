@@ -1,0 +1,97 @@
+[
+  {
+    "bookId": "demo-systems",
+    "title": "Synthetic Systems Primer",
+    "author": "Demo Author A",
+    "noteCount": 3,
+    "reviewCount": 1,
+    "bookmarkCount": 1,
+    "marks": [
+      {
+        "chapter": "Feedback",
+        "text": "Synthetic excerpt: feedback changes the future state of a system.",
+        "createTime": 1735689600
+      },
+      {
+        "chapter": "Boundaries",
+        "text": "Synthetic excerpt: boundaries are modeling choices rather than natural facts.",
+        "createTime": 1738368000
+      },
+      {
+        "chapter": "Delays",
+        "text": "Synthetic excerpt: delays can make simple policies behave unexpectedly.",
+        "createTime": 1740787200
+      }
+    ],
+    "reviews": [
+      {
+        "chapter": "Feedback",
+        "abstract": "",
+        "content": "Synthetic thought: I should look for delayed feedback before blaming individual events.",
+        "createTime": 1740787200,
+        "star": -1
+      }
+    ]
+  },
+  {
+    "bookId": "demo-learning",
+    "title": "Learning Loops",
+    "author": "Demo Author B",
+    "noteCount": 2,
+    "reviewCount": 1,
+    "bookmarkCount": 0,
+    "marks": [
+      {
+        "chapter": "Retrieval",
+        "text": "Synthetic excerpt: recalling an idea changes what becomes easy to recall next.",
+        "createTime": 1761955200
+      },
+      {
+        "chapter": "Spacing",
+        "text": "Synthetic excerpt: spacing creates useful difficulty between encounters.",
+        "createTime": 1764547200
+      }
+    ],
+    "reviews": [
+      {
+        "chapter": "Retrieval",
+        "abstract": "",
+        "content": "Synthetic thought: retrieval practice should happen before reopening my notes.",
+        "createTime": 1764547200,
+        "star": -1
+      }
+    ]
+  },
+  {
+    "bookId": "demo-history",
+    "title": "Imaginary Cities: A History",
+    "author": "Demo Author C",
+    "noteCount": 1,
+    "reviewCount": 0,
+    "bookmarkCount": 0,
+    "marks": [
+      {
+        "chapter": "Archives",
+        "text": "Synthetic excerpt: an archive reflects both preservation and omission.",
+        "createTime": 1756684800
+      }
+    ],
+    "reviews": []
+  },
+  {
+    "bookId": "demo-private",
+    "title": "Private Synthetic Notebook",
+    "author": "Demo Author D",
+    "noteCount": 1,
+    "reviewCount": 0,
+    "bookmarkCount": 0,
+    "marks": [
+      {
+        "chapter": "Private",
+        "text": "Synthetic private fixture used only to test exclusion rules.",
+        "createTime": 1775001600
+      }
+    ],
+    "reviews": []
+  }
+]

@@ -1,0 +1,166 @@
+{
+  "overall": {
+    "totalReadTime": 48600,
+    "readDays": 14,
+    "registTime": 1704067200,
+    "readTimes": {
+      "1735689600": 3600,
+      "1740787200": 5400,
+      "1756684800": 4200,
+      "1761955200": 7200,
+      "1764547200": 5400,
+      "1767225600": 10800,
+      "1772323200": 7200
+    },
+    "preferTime": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1800,
+      3600,
+      5400,
+      3600,
+      1800,
+      0,
+      0,
+      0,
+      1800,
+      3600,
+      5400,
+      3600,
+      1800,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "preferTimeWord": "Synthetic preference: morning and early evening",
+    "readRate": 100,
+    "wrReadTime": 48600,
+    "wrListenTime": 0,
+    "readStat": [
+      {
+        "stat": "Synthetic archive",
+        "counts": "3 books"
+      }
+    ],
+    "preferCategory": [
+      {
+        "categoryTitle": "Systems",
+        "readingTime": 18000,
+        "readingCount": 1,
+        "val": 1
+      },
+      {
+        "categoryTitle": "Learning",
+        "readingTime": 12600,
+        "readingCount": 1,
+        "val": 1
+      }
+    ],
+    "preferAuthor": [
+      {
+        "name": "Demo Author A",
+        "count": 1,
+        "readTime": "5h"
+      },
+      {
+        "name": "Demo Author B",
+        "count": 1,
+        "readTime": "3.5h"
+      }
+    ],
+    "preferPublisher": [
+      {
+        "name": "Synthetic Press",
+        "count": 3
+      }
+    ],
+    "preferBooks": [],
+    "medals": [],
+    "readLongest": [
+      {
+        "book": {
+          "bookId": "demo-systems",
+          "title": "Synthetic Systems Primer",
+          "author": "Demo Author A"
+        },
+        "readTime": 18000
+      },
+      {
+        "book": {
+          "bookId": "demo-learning",
+          "title": "Learning Loops",
+          "author": "Demo Author B"
+        },
+        "readTime": 12600
+      }
+    ]
+  },
+  "monthly": {
+    "2025-01": {
+      "totalReadTime": 9000,
+      "readTimes": {
+        "1735689600": 3600,
+        "1740787200": 5400
+      }
+    },
+    "2025-09": {
+      "totalReadTime": 4200,
+      "readTimes": {
+        "1756684800": 4200
+      }
+    },
+    "2025-11": {
+      "totalReadTime": 12600,
+      "readTimes": {
+        "1761955200": 7200,
+        "1764547200": 5400
+      }
+    },
+    "2026-01": {
+      "totalReadTime": 10800,
+      "readTimes": {
+        "1767225600": 10800
+      }
+    },
+    "2026-03": {
+      "totalReadTime": 7200,
+      "readTimes": {
+        "1772323200": 7200
+      }
+    }
+  },
+  "annually": {
+    "2025": {
+      "totalReadTime": 25800,
+      "readDays": 8,
+      "preferCategory": [
+        {
+          "categoryTitle": "Systems",
+          "readingTime": 9000,
+          "readingCount": 1,
+          "val": 1
+        }
+      ],
+      "readLongest": []
+    },
+    "2026": {
+      "totalReadTime": 18000,
+      "readDays": 6,
+      "preferCategory": [
+        {
+          "categoryTitle": "Learning",
+          "readingTime": 7200,
+          "readingCount": 1,
+          "val": 1
+        }
+      ],
+      "readLongest": []
+    }
+  }
+}

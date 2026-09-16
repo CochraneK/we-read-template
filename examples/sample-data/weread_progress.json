@@ -1,0 +1,30 @@
+{
+  "demo-systems": {
+    "progress": 100,
+    "recordReadingTime": 18000,
+    "finishTime": 1767225600,
+    "updateTime": 1767225600,
+    "isStartReading": 1
+  },
+  "demo-learning": {
+    "progress": 62,
+    "recordReadingTime": 12600,
+    "finishTime": 0,
+    "updateTime": 1772323200,
+    "isStartReading": 1
+  },
+  "demo-history": {
+    "progress": 28,
+    "recordReadingTime": 5400,
+    "finishTime": 0,
+    "updateTime": 1759276800,
+    "isStartReading": 1
+  },
+  "demo-private": {
+    "progress": 12,
+    "recordReadingTime": 1800,
+    "finishTime": 0,
+    "updateTime": 1775001600,
+    "isStartReading": 1
+  }
+}

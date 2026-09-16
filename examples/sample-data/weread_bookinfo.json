@@ -1,0 +1,42 @@
+{
+  "demo-systems": {
+    "publishTime": "2024",
+    "wordCount": 82000,
+    "publisher": "Synthetic Press",
+    "newRating": 0,
+    "newRatingCount": 0,
+    "translator": "",
+    "category": "Systems",
+    "intro": "Synthetic fixture."
+  },
+  "demo-learning": {
+    "publishTime": "2025",
+    "wordCount": 64000,
+    "publisher": "Synthetic Press",
+    "newRating": 0,
+    "newRatingCount": 0,
+    "translator": "",
+    "category": "Learning",
+    "intro": "Synthetic fixture."
+  },
+  "demo-history": {
+    "publishTime": "2023",
+    "wordCount": 91000,
+    "publisher": "Synthetic Press",
+    "newRating": 0,
+    "newRatingCount": 0,
+    "translator": "",
+    "category": "History",
+    "intro": "Synthetic fixture."
+  },
+  "demo-private": {
+    "publishTime": "2026",
+    "wordCount": 40000,
+    "publisher": "Synthetic Press",
+    "newRating": 0,
+    "newRatingCount": 0,
+    "translator": "",
+    "category": "Private",
+    "intro": "Synthetic fixture."
+  }
+}

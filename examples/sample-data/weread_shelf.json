@@ -1,0 +1,51 @@
+{
+  "mp": null,
+  "albums": [],
+  "archive": [],
+  "books": [
+    {
+      "bookId": "demo-systems",
+      "title": "Synthetic Systems Primer",
+      "author": "Demo Author A",
+      "category": "Systems",
+      "secret": 0,
+      "finishReading": 1,
+      "readUpdateTime": 1767225600,
+      "updateTime": 1767225600,
+      "cover": ""
+    },
+    {
+      "bookId": "demo-learning",
+      "title": "Learning Loops",
+      "author": "Demo Author B",
+      "category": "Learning",
+      "secret": 0,
+      "finishReading": 0,
+      "readUpdateTime": 1772323200,
+      "updateTime": 1772323200,
+      "cover": ""
+    },
+    {
+      "bookId": "demo-history",
+      "title": "Imaginary Cities: A History",
+      "author": "Demo Author C",
+      "category": "History",
+      "secret": 0,
+      "finishReading": 0,
+      "readUpdateTime": 1759276800,
+      "updateTime": 1759276800,
+      "cover": ""
+    },
+    {
+      "bookId": "demo-private",
+      "title": "Private Synthetic Notebook",
+      "author": "Demo Author D",
+      "category": "Private",
+      "secret": 1,
+      "finishReading": 0,
+      "readUpdateTime": 1775001600,
+      "updateTime": 1775001600,
+      "cover": ""
+    }
+  ]
+}

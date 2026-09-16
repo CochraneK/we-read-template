@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "upstream": "https://github.com/CochraneK/we-read.git",
+  "branch": "main",
+  "sync_roots": [
+    "scripts",
+    "schemas",
+    "tests"
+  ],
+  "template_owned": [
+    "scripts/fetch_shelf.py",
+    "scripts/weread.py",
+    "scripts/sync_from_upstream.py",
+    "scripts/build_pages_report.py",
+    "scripts/pages_public_quotes.py",
+    "scripts/pages_experience_ui.py",
+    "scripts/pages_command_ui.py"
+  ],
+  "never_sync": [
+    "data",
+    "site",
+    "reports",
+    "quote_lib",
+    ".workbuddy",
+    "README.md",
+    "AGENTS.md",
+    "SECURITY.md",
+    ".github"
+  ]
+}

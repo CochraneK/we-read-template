@@ -1,0 +1,75 @@
+name: pages
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "scripts/**"
+      - "schemas/**"
+      - "examples/sample-data/**"
+      - ".github/workflows/pages.yml"
+  schedule:
+    - cron: "17 3 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    env:
+      WEREAD_API_KEY: ${{ secrets.WEREAD_API_KEY }}
+      WEREAD_PAGES_INCLUDE_PRIVATE: ${{ vars.WEREAD_PAGES_INCLUDE_PRIVATE || '0' }}
+      WEREAD_PAGES_INCLUDE_PUBLIC_QUOTES: ${{ vars.WEREAD_PAGES_INCLUDE_PUBLIC_QUOTES || '0' }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
+        with:
+          python-version: "3.13"
+
+      - name: Select data source
+        shell: bash
+        run: |
+          if [ -n "$WEREAD_API_KEY" ]; then
+            echo "Using authenticated WeRead data."
+            echo "WEREAD_DATA_DIR=$RUNNER_TEMP/weread-data" >> "$GITHUB_ENV"
+          else
+            echo "No WEREAD_API_KEY secret found; deploying synthetic starter archive."
+            echo "WEREAD_DATA_DIR=$GITHUB_WORKSPACE/examples/sample-data" >> "$GITHUB_ENV"
+          fi
+
+      - name: Fetch authenticated account data
+        if: ${{ env.WEREAD_API_KEY != '' }}
+        run: |
+          python scripts/fetch_shelf.py
+          python scripts/export_notes.py
+          python scripts/fetch_enrich.py
+
+      - name: Build public archive
+        run: |
+          python scripts/pages_runtime.py
+          python scripts/pages_public_quotes.py
+          python scripts/pages_polish_site.py
+
+      - name: Validate publication artifact
+        run: |
+          python scripts/validate_pages_output.py --js-out /tmp/we-read-pages-inline.js
+          node --check /tmp/we-read-pages-inline.js
+
+      - uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6
+      - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5
+        with:
+          path: site
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5

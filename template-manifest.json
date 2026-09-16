@@ -26,5 +26,8 @@
     "AGENTS.md",
     "SECURITY.md",
     ".github"
+  ],
+  "sync_exclude": [
+    "scripts/analysis.py"
   ]
 }

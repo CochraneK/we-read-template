@@ -39,6 +39,7 @@ def main() -> int:
 
     cfg = load_manifest()
     owned = set(cfg.get("template_owned") or [])
+    excluded = set(cfg.get("sync_exclude") or [])
     roots = list(cfg.get("sync_roots") or [])
     with tempfile.TemporaryDirectory(prefix="we-read-upstream-") as tmp:
         upstream = Path(tmp) / "upstream"
@@ -51,7 +52,7 @@ def main() -> int:
         target = files_under(ROOT, roots)
         drift = []
         for rel, src in sorted(source.items()):
-            if rel in owned:
+            if rel in owned or rel in excluded:
                 continue
             dst = ROOT / rel
             if not dst.exists() or not filecmp.cmp(src, dst, shallow=False):
@@ -60,7 +61,7 @@ def main() -> int:
                     dst.parent.mkdir(parents=True, exist_ok=True)
                     shutil.copy2(src, dst)
         for rel in sorted(set(target) - set(source)):
-            if rel in owned:
+            if rel in owned or rel in excluded:
                 continue
             drift.append(rel + " (removed upstream)")
             if args.apply:

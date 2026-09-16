@@ -8,13 +8,14 @@
     "tests"
   ],
   "template_owned": [
-    "scripts/fetch_shelf.py",
-    "scripts/weread.py",
-    "scripts/sync_from_upstream.py",
     "scripts/build_pages_report.py",
-    "scripts/pages_public_quotes.py",
+    "scripts/fetch_shelf.py",
+    "scripts/pages_command_ui.py",
     "scripts/pages_experience_ui.py",
-    "scripts/pages_command_ui.py"
+    "scripts/pages_public_quotes.py",
+    "scripts/sync_from_upstream.py",
+    "scripts/validate_pages_output.py",
+    "scripts/weread.py"
   ],
   "never_sync": [
     "data",

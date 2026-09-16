@@ -67,3 +67,14 @@ python scripts/weread.py sample
 ```
 
 This builds the UI from synthetic fixtures under `examples/sample-data/`.
+
+## 8. Optional GitHub Pages
+
+For automatic Pages deployment:
+
+1. open **Settings → Pages** and choose **GitHub Actions**;
+2. add Actions secret `WEREAD_API_KEY`;
+3. add repository variable `ENABLE_GITHUB_PAGES=1`;
+4. optionally set `WEREAD_PAGES_INCLUDE_PRIVATE` or `WEREAD_PAGES_INCLUDE_PUBLIC_QUOTES` to `1` only after reviewing the publication policy.
+
+Without `ENABLE_GITHUB_PAGES=1`, the workflow still builds and validates but skips deployment.

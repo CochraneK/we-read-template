@@ -6,6 +6,12 @@
 
 Public Reading Archive · Private Reading Lab · Search · Recall · Deep Notes · Advisor · Reading Path · Book → Skill
 
+<p>
+  <a href="https://github.com/CochraneK/we-read-template/actions/workflows/test.yml"><img alt="tests" src="https://github.com/CochraneK/we-read-template/actions/workflows/test.yml/badge.svg"></a>
+  <img alt="Python" src="https://img.shields.io/badge/Python-3.11%2B-informational">
+  <img alt="privacy" src="https://img.shields.io/badge/defaults-privacy--safe-success">
+</p>
+
 </div>
 
 ---
@@ -214,6 +220,8 @@ See [docs/UPSTREAM.md](docs/UPSTREAM.md).
 ## Template repository setting
 
 For the best GitHub UX, enable **Settings → General → Template repository** once. Users will then get GitHub's **Use this template** button instead of needing to fork.
+
+The full one-time repository checklist is in [docs/GITHUB_SETUP.md](docs/GITHUB_SETUP.md).
 
 ## License status
 

@@ -112,6 +112,11 @@ def require_key() -> None:
 
 def cmd_sync(_: argparse.Namespace) -> int:
     require_key()
+    # export_notes.py can reuse an existing notebooks list for interrupted runs.
+    # A normal user-facing sync should refresh that list so newly-noted books appear.
+    notebooks_cache = data_dir() / "weread_notebooks.json"
+    if notebooks_cache.exists():
+        notebooks_cache.unlink()
     for script in ("scripts/fetch_shelf.py", "scripts/export_notes.py", "scripts/fetch_enrich.py"):
         run_script(script)
     return 0

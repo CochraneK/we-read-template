@@ -98,13 +98,15 @@ validator
 your GitHub Page
 ```
 
-For a real account Page, add a repository Actions secret named:
+For a real account Page:
 
-```text
-WEREAD_API_KEY
-```
+1. enable **Settings → Pages → Source: GitHub Actions**;
+2. add a repository Actions secret named `WEREAD_API_KEY`;
+3. add repository variable `ENABLE_GITHUB_PAGES=1`.
 
-Optional repository variables:
+Until `ENABLE_GITHUB_PAGES=1` is present, the workflow still builds and validates the archive but deliberately skips deployment.
+
+Optional publication variables:
 
 ```text
 WEREAD_PAGES_INCLUDE_PRIVATE=0|1

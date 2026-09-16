@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
 from collections import Counter
 from html.parser import HTMLParser
@@ -23,6 +24,8 @@ REQUIRED_HTML_MARKERS = (
     "we-read-local-pins",
     "themeToggle",
     "wereadArchiveThemeV1",
+)
+PUBLIC_QUOTE_HTML_MARKERS = (
     "publicQuoteRandom",
     "publicQuoteResample",
     "hiddenEvidenceSearch",
@@ -224,6 +227,10 @@ def validate(site: Path, data: Path, js_out: Path, sample_limit: int = 240) -> d
 
     allowed_public_bodies, public_quote_count = validate_public_quotes(report, html)
     public_mark_index_count = validate_public_mark_index(site, report, html)
+    if public_quote_count or public_mark_index_count:
+        missing_public = [marker for marker in PUBLIC_QUOTE_HTML_MARKERS if marker not in html]
+        if missing_public:
+            raise ValueError("missing public-quote Page markers: " + ", ".join(missing_public))
 
     # HTML/report-data still must not contain arbitrary raw bodies. Full authorized
     # marks live only in the separately contracted public-marks-index.js asset.
@@ -266,7 +273,7 @@ def validate(site: Path, data: Path, js_out: Path, sample_limit: int = 240) -> d
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--site", type=Path, default=Path("site"))
-    parser.add_argument("--data", type=Path, default=Path("data"))
+    parser.add_argument("--data", type=Path, default=Path(os.environ.get("WEREAD_DATA_DIR", "data")).expanduser().resolve())
     parser.add_argument("--js-out", type=Path, default=Path("/tmp/we-read-pages-inline.js"))
     parser.add_argument("--sample-limit", type=int, default=240)
     args = parser.parse_args()

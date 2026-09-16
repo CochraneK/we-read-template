@@ -17,7 +17,8 @@
     "scripts/pages_public_quotes.py",
     "scripts/sync_from_upstream.py",
     "scripts/validate_pages_output.py",
-    "scripts/weread.py"
+    "scripts/weread.py",
+    "tests/test_template_starter.py"
   ],
   "never_sync": [
     "data",

@@ -30,3 +30,6 @@ quote_lib/*.zip
 # Temp
 *.tmp
 *.bak
+
+# Local validator scratch
+.tmp-pages-inline.js

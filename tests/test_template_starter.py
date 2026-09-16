@@ -3,6 +3,7 @@ from pathlib import Path
 import importlib.util
 import json
 import os
+import subprocess
 import tempfile
 import unittest
 
@@ -48,6 +49,34 @@ class TemplateStarterTests(unittest.TestCase):
                 else:
                     os.environ["WEREAD_API_KEY"] = previous
                 os.environ.pop("WEREAD_PAGES_INCLUDE_PRIVATE", None)
+
+    def test_no_personal_account_artifacts_are_tracked(self):
+        tracked = subprocess.run(
+            ["git", "ls-files"],
+            cwd=ROOT,
+            check=True,
+            capture_output=True,
+            text=True,
+        ).stdout.splitlines()
+        forbidden = [
+            path for path in tracked
+            if path.startswith("data/weread_")
+            or path.startswith(".workbuddy/")
+            or path.startswith("quote_lib/")
+            or path.startswith("reports/")
+        ]
+        self.assertEqual(forbidden, [])
+
+    def test_generic_ui_has_no_owner_specific_counts(self):
+        paths = [
+            ROOT / "scripts" / "pages_enrich_site.py",
+            ROOT / "scripts" / "pages_experience_ui.py",
+            ROOT / "scripts" / "pages_command_ui.py",
+            ROOT / "scripts" / "pages_public_quotes.py",
+        ]
+        text = "\n".join(path.read_text(encoding="utf-8") for path in paths)
+        for owner_specific in ("498-book", "498 本", "6,099", "6099"):
+            self.assertNotIn(owner_specific, text)
 
 
 if __name__ == "__main__":

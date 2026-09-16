@@ -20,6 +20,8 @@ import math
 from collections import Counter, defaultdict
 from pathlib import Path
 
+import pages_enrichment
+
 
 def _load(path: Path, default):
     try:
@@ -365,8 +367,13 @@ def build_insights(data_dir: Path) -> dict:
             share = (row["notedBooks"] / total_noted_books) if total_noted_books else 0
             concentration_hhi += share * share
 
-    return {
-        "version": "1",
+    result = {
+        "version": "2-filtered",
+        "scope": {
+            "includePrivate": False,
+            "secretBooks": len(secret_ids),
+            "rawTextPublished": False,
+        },
         "privacy": {
             "privateExcluded": len(secret_ids),
             "rawTextPublished": False,
@@ -393,6 +400,8 @@ def build_insights(data_dir: Path) -> dict:
             "reviewRate": round(100 * total_reviews / total_notes, 1) if total_notes else 0.0,
         },
     }
+    result["enrichment"] = pages_enrichment.build_enrichment(data_dir, include_private=False)
+    return result
 
 
 if __name__ == "__main__":

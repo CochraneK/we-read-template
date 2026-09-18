@@ -22,3 +22,11 @@ jobs:
         run: python -m unittest discover -s tests -v
       - name: Build synthetic starter archive
         run: python scripts/weread.py sample
+      - name: Build synthetic Private Reading Lab
+        env:
+          WEREAD_DATA_DIR: ${{ github.workspace }}/examples/sample-data
+        run: |
+          python scripts/build_private_reading_lab.py
+          test -f examples/sample-data/analysis/private_lab/index.html
+          test -f examples/sample-data/analysis/private_lab/text_mining.html
+          test -f examples/sample-data/analysis/private_lab/text_mining_context.json

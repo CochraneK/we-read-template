@@ -180,6 +180,39 @@ def lexical_diversity(rows: list[dict], counters: list[Counter], role: str) -> d
     }
 
 
+
+def contrastive_terms(rows: list[dict], counters: list[Counter], limit: int = 30) -> dict:
+    """Smoothed log-ratio terms that distinguish exposure vs expression corpora."""
+    source = Counter()
+    self_words = Counter()
+    for row, counter in zip(rows, counters):
+        (source if row["role"] == "source_text" else self_words).update(counter)
+    vocab = set(source) | set(self_words)
+    source_total = sum(source.values())
+    self_total = sum(self_words.values())
+    alpha = 0.5
+    denom_source = source_total + alpha * max(1, len(vocab))
+    denom_self = self_total + alpha * max(1, len(vocab))
+    scored = []
+    for term in vocab:
+        ps = (source[term] + alpha) / denom_source
+        pu = (self_words[term] + alpha) / denom_self
+        scored.append((log(ps / pu), term))
+    source_ranked = sorted((x for x in scored if x[0] > 0), reverse=True)[:limit]
+    self_ranked = sorted((x for x in scored if x[0] < 0))[:limit]
+    return {
+        "sourceDistinctive": [
+            {"term": term, "logRatio": round(score, 4), "sourceCount": source[term], "selfCount": self_words[term]}
+            for score, term in source_ranked
+        ],
+        "selfDistinctive": [
+            {"term": term, "logRatio": round(-score, 4), "sourceCount": source[term], "selfCount": self_words[term]}
+            for score, term in self_ranked
+        ],
+        "method": "add-0.5 smoothed token-frequency log ratio; lexical contrast, not belief contrast",
+    }
+
+
 def cooccurrence(rows: list[dict], counters: list[Counter], df: Counter, idf: dict[str, float], limit: int = 100) -> tuple[list[dict], list[dict]]:
     n_docs = max(1, len(rows))
     eligible = {term for term, count in df.items() if count >= 2}
@@ -487,6 +520,7 @@ def build(context: dict) -> dict:
             },
             "allTopTerms": top_terms(rows, counters, idf),
         },
+        "contrast": contrastive_terms(rows, counters),
         "cooccurrence": {
             "edges": edges,
             "communities": communities,

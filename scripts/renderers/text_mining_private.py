@@ -40,6 +40,7 @@ def render(lite: dict, semantic: dict | None = None) -> str:
     coverage = lite.get("coverage") or {}
     source = (lite.get("corpora") or {}).get("source") or {}
     self_corpus = (lite.get("corpora") or {}).get("self") or {}
+    contrast = lite.get("contrast") or {}
     communities = ((lite.get("cooccurrence") or {}).get("communities") or [])[:12]
     bursts = ((lite.get("temporal") or {}).get("bursts") or [])[:16]
     resurgence = ((lite.get("temporal") or {}).get("resurgence") or [])[:16]
@@ -47,6 +48,7 @@ def render(lite: dict, semantic: dict | None = None) -> str:
     lags = ((lite.get("exposureExpression") or {}).get("items") or [])[:20]
     rhetoric = (lite.get("rhetoricalLanguage") or {}).get("signals") or []
     semantic_clusters = semantic.get("clusters") or []
+    classical = semantic.get("classicalTopics") or {}
     semantic_pairs = semantic.get("crossBookSimilarity") or []
     semantic_drift = semantic.get("yearlyDrift") or []
     semantic_align = semantic.get("sourceSelfAlignment") or []
@@ -99,6 +101,18 @@ def render(lite: dict, semantic: dict | None = None) -> str:
             f'<p>{esc(" · ".join(x.get("terms") or []))}</p><small>{x.get("documents",0)} docs</small></article>'
             for x in semantic_clusters[:12]
         ) or '<p class="empty">暂无 cluster。</p>'}</div>
+        <h3 class="sub">Classical topic baselines · NMF</h3>
+        <div class="cards">{''.join(
+            f'<article class="card"><div class="eyebrow">NMF topic</div><h3>{esc(x.get("label"))}</h3>'
+            f'<p>{esc(" · ".join(x.get("terms") or []))}</p><small>{x.get("documents",0)} docs</small></article>'
+            for x in (classical.get("nmf") or [])[:12]
+        ) or '<p class="empty">暂无 NMF topic。</p>'}</div>
+        <h3 class="sub">Classical topic baselines · LDA</h3>
+        <div class="cards">{''.join(
+            f'<article class="card"><div class="eyebrow">LDA topic</div><h3>{esc(x.get("label"))}</h3>'
+            f'<p>{esc(" · ".join(x.get("terms") or []))}</p><small>{x.get("documents",0)} docs</small></article>'
+            for x in (classical.get("lda") or [])[:12]
+        ) or '<p class="empty">暂无 LDA topic。</p>'}</div>
         <h3 class="sub">跨书语义近邻</h3>
         <div class="evidence-list">{''.join(
             f'<article class="evidence"><div><b>{esc(x.get("a",{}).get("title"))}</b><span>↔</span><b>{esc(x.get("b",{}).get("title"))}</b>'
@@ -144,6 +158,7 @@ python scripts/build_private_reading_lab.py --include-private --semantic-text --
 <section class="hero"><div class="eyebrow">Private / Raw Evidence</div><h1>Reading Corpus Lab</h1><p class="muted">把“读了什么”推进到“长期阅读语料如何组织、重复、迁移和重新出现”。Source highlights 与 user-authored thoughts 始终分开；本页包含私有证据，不得上传到公开 Pages。</p></section>
 <section class="metrics"><div class="metric"><span>Documents</span><b>{coverage.get("documents",0):,}</b></div><div class="metric"><span>Source highlights</span><b>{coverage.get("sourceHighlights",0):,}</b></div><div class="metric"><span>User thoughts</span><b>{coverage.get("userThoughts",0):,}</b></div><div class="metric"><span>Books</span><b>{coverage.get("books",0):,}</b></div><div class="metric"><span>Years</span><b>{len(coverage.get("years") or []):,}</b></div></section>
 <section class="grid2" id="lexical"><article class="panel"><div class="head"><div><div class="eyebrow">Exposure corpus</div><h2>Source highlights · TF-IDF</h2><p>你保存过的原文，不自动代表你的观点。</p></div></div><div class="pills">{pills(source.get("topTerms"))}</div></article><article class="panel"><div class="head"><div><div class="eyebrow">Expression corpus</div><h2>My thoughts · TF-IDF</h2><p>本人写过的文本证据，仍不外推成人格。</p></div></div><div class="pills">{pills(self_corpus.get("topTerms"))}</div></article></section>
+<section class="grid2"><article class="panel"><div class="head"><div><div class="eyebrow">Contrastive lexicon</div><h2>Source-distinctive</h2><p>相对更常出现在保存原文中的 lexical units。</p></div></div><div class="pills">{pills(contrast.get("sourceDistinctive"), count_key="logRatio")}</div></article><article class="panel"><div class="head"><div><div class="eyebrow">Contrastive lexicon</div><h2>Self-distinctive</h2><p>相对更常出现在本人 review/thought 中；仍不等于稳定人格或信念。</p></div></div><div class="pills">{pills(contrast.get("selfDistinctive"), count_key="logRatio")}</div></article></section>
 <section class="panel"><div class="head"><div><div class="eyebrow">Co-occurrence graph</div><h2>Lexical communities</h2><p>正 PMI + 文档共现形成候选母题，不当作语义主题真值。</p></div></div></div><div class="cards">{community_html}</div></section>
 <section class="grid2" id="temporal"><article class="panel"><div class="head"><div><div class="eyebrow">Temporal burst</div><h2>突然升温的词汇</h2></div></div><div class="table">{burst_html}</div></article><article class="panel"><div class="head"><div><div class="eyebrow">Concept resurgence</div><h2>沉寂后重新出现</h2></div></div><div class="table">{resurgence_html}</div></article></section>
 <section class="grid2"><article class="panel"><div class="head"><div><div class="eyebrow">Exposure → Expression</div><h2>Lexical lag</h2><p>先出现在 source，后出现在自己的文字；只表示时间重合。</p></div></div><div class="table">{lag_html}</div></article><article class="panel"><div class="head"><div><div class="eyebrow">User-authored language</div><h2>Rhetorical signals</h2><p>问句、质疑、不确定、因果等显式语言标记，不做情绪/人格诊断。</p></div></div>{rhetoric_html}</article></section>

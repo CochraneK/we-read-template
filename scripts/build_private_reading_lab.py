@@ -42,7 +42,8 @@ def filtered_notes(raw_notes: list, context: dict) -> list[dict]:
 
 
 def build_steps(out_dir: Path, *, include_private: bool, with_text: bool, topic: str, book_id: str,
-                review_start: str, review_end: str, review_platform: str) -> list[tuple[str, list[str]]]:
+                review_start: str, review_end: str, review_platform: str,
+                semantic_text: bool = False, embedding_model: str = "") -> list[tuple[str, list[str]]]:
     context = out_dir / "visualization_context.json"
     steps: list[tuple[str, list[str]]] = []
     context_cmd = ["scripts/build_visualization_context.py", "--output", str(context)]
@@ -55,7 +56,21 @@ def build_steps(out_dir: Path, *, include_private: bool, with_text: bool, topic:
         ("Recall Queue", ["scripts/build_recall_queue.py", "--context", str(context), "--output", str(out_dir / "recall_queue.json"), "--min-age-days", "30", "--limit", "40", "--max-per-book", "2"]),
         ("Search Index", ["scripts/build_search_index.py", "--context", str(context), "--db", str(out_dir / "search.sqlite"), "--rebuild"]),
         ("Deep Notes Context", ["scripts/build_deep_notes_context.py", "--context", str(context), "--output", str(out_dir / "deep_notes_context.json")]),
+        ("Text Mining Lite", ["scripts/build_text_mining_context.py", "--context", str(context), "--output", str(out_dir / "text_mining_context.json")]),
     ])
+    if semantic_text:
+        semantic_cmd = [
+            "scripts/build_semantic_text_mining.py", "--context", str(context),
+            "--output", str(out_dir / "text_mining_semantic.json"),
+        ]
+        if embedding_model:
+            semantic_cmd.extend(["--model", embedding_model])
+        steps.append(("Text Mining Semantic", semantic_cmd))
+    steps.append((
+        "Text Mining Report",
+        ["scripts/renderers/text_mining_private.py", "--input", str(out_dir / "text_mining_context.json"),
+         "--semantic", str(out_dir / "text_mining_semantic.json"), "--output", str(out_dir / "text_mining.html")],
+    ))
     review_platform_code = REVIEW_PLATFORM_CODES.get(review_platform, review_platform)
     review_context = out_dir / "narrative_review_context.json"
     review = [
@@ -176,6 +191,7 @@ def render_dashboard(out_dir: Path) -> None:
         "--blindspot", str(out_dir / "blindspot_context.json"),
         "--review", str(out_dir / "narrative_review_context.json"),
         "--quote-cards", str(out_dir / "quote_cards.html"),
+        "--text-mining-report", str(out_dir / "text_mining.html"),
         "--output", str(output),
     ])
     run_step(["scripts/validate_private_lab_output.py", "--html", str(output)])
@@ -198,6 +214,8 @@ def parse_args():
     parser.add_argument("--review-start", default=f"{today.year}-01-01")
     parser.add_argument("--review-end", default=today.isoformat())
     parser.add_argument("--review-platform", choices=["", "朋友圈", "公众号", "小红书", "视频脚本", "个人日记"], default="")
+    parser.add_argument("--semantic-text", action="store_true", help="Run optional local embedding analysis; requires requirements-text-mining.txt.")
+    parser.add_argument("--embedding-model", default=os.environ.get("WEREAD_EMBEDDING_MODEL", ""), help="SentenceTransformer local path/model id; required with --semantic-text.")
     return parser.parse_args()
 
 
@@ -211,6 +229,8 @@ def main():
         raise SystemExit("ERROR: final Reading Path requires --path-confirmed-level")
     if args.advisor_semantic_annotations and not args.advisor_query.strip():
         raise SystemExit("ERROR: --advisor-semantic-annotations requires --advisor-query")
+    if args.semantic_text and not args.embedding_model.strip():
+        raise SystemExit("ERROR: --semantic-text requires --embedding-model or WEREAD_EMBEDDING_MODEL")
 
     out_dir = args.output_dir.expanduser().resolve()
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -218,6 +238,7 @@ def main():
         out_dir, include_private=args.include_private, with_text=args.with_text,
         topic=args.topic.strip(), book_id=args.book_id.strip(), review_start=args.review_start,
         review_end=args.review_end, review_platform=args.review_platform,
+        semantic_text=args.semantic_text, embedding_model=args.embedding_model.strip(),
     ):
         print(f"==> {label}")
         run_step(command)
@@ -250,6 +271,9 @@ def main():
         "outputDir": str(out_dir),
         "includePrivateBooks": bool(args.include_private),
         "includesQuoteCards": bool(args.with_text),
+        "includesTextMiningLite": True,
+        "includesSemanticTextMining": bool(args.semantic_text),
+        "embeddingModel": args.embedding_model.strip() or None,
         "includesBrowserLocalRecallHistory": True,
         "includesRecallAnswerHistory": True,
         "includesAlchemySynthesisReport": bool(args.with_text and (args.topic.strip() or args.book_id.strip())),
@@ -273,6 +297,7 @@ def main():
     print(
         f"private-reading-lab: {out_dir / 'index.html'} | quote_cards={args.with_text} "
         f"review={bool(args.review_platform)} advisor_live={bool(args.advisor_query.strip())} path={bool(args.path_topic.strip())} "
+        f"text_mining=true semantic_text={bool(args.semantic_text)} "
         f"validated=true raw_evidence=true recall_history=browser-local public_page_safe=false"
     )
 

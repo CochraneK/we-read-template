@@ -17,6 +17,7 @@ def augment(page: str, assets: dict[str, bool]) -> str:
             return f'<a class="action-card ready" href="{html.escape(path, quote=True)}"><strong>{html.escape(label)}</strong><span>{html.escape(desc)}</span></a>'
         return f'<div class="action-card missing"><strong>{html.escape(label)}</strong><span>本次未生成。{html.escape(desc)}</span></div>'
     cards = ''.join([
+        card('Text Mining Lab','text_mining.html','TF-IDF / lexical communities / burst / novelty / Source→Self；可选本地 embedding 语义层。','textMining'),
         card('Narrative Review','narrative_review.html','周期事实 → 平台化可编辑草稿；未知原因不会自动编造。','review'),
         card('Alchemy · 单书','alchemy_book.html','章节证据 → 启发式议题聚类 → 来源/我的想法对照。','alchemyBook'),
         card('Alchemy · 跨主题','alchemy_topic.html','跨书证据景观；证据过大时会先触发 scope gate。','alchemyTopic'),

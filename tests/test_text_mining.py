@@ -61,6 +61,13 @@ class TextMiningTests(unittest.TestCase):
         self.assertIn("topTerms", result["corpora"]["self"])
         self.assertFalse(result["publicPageSafe"])
 
+    def test_source_self_contrastive_terms_are_explicitly_lexical(self):
+        result = lite.build(fixture())
+        contrast = result["contrast"]
+        self.assertIn("sourceDistinctive", contrast)
+        self.assertIn("selfDistinctive", contrast)
+        self.assertIn("lexical contrast", contrast["method"])
+
     def test_exposure_expression_lag_is_bounded_as_lexical_overlap(self):
         result = lite.build(fixture())
         items = result["exposureExpression"]["items"]

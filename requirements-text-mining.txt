@@ -1,0 +1,5 @@
+# Optional dependencies for local semantic text mining.
+# Core WeRead Intelligence and Text Mining Lite use only the Python standard library.
+sentence-transformers
+scikit-learn
+numpy

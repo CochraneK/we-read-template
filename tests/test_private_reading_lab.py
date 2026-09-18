@@ -42,11 +42,36 @@ class PrivateReadingLabTests(unittest.TestCase):
         self.assertIn("Recall Queue", labels)
         self.assertIn("Search Index", labels)
         self.assertIn("Deep Notes Context", labels)
+        self.assertIn("Text Mining Lite", labels)
+        self.assertIn("Text Mining Report", labels)
         self.assertIn("Narrative Review Context", labels)
         flattened = "\n".join(" ".join(cmd) for _, cmd in steps)
         self.assertIn("build_visualization_context.py", flattened)
         self.assertIn("build_deep_notes_context.py", flattened)
+        self.assertIn("build_text_mining_context.py", flattened)
+        self.assertIn("text_mining_private.py", flattened)
         self.assertNotIn("analysis.py", flattened)
+
+
+    def test_semantic_text_mode_adds_optional_embedding_step(self):
+        with tempfile.TemporaryDirectory() as td:
+            out = Path(td)
+            steps = lab.build_steps(
+                out,
+                include_private=True,
+                with_text=False,
+                topic="",
+                book_id="",
+                review_start="2026-01-01",
+                review_end="2026-09-14",
+                review_platform="",
+                semantic_text=True,
+                embedding_model="local/model",
+            )
+        labels = [label for label, _ in steps]
+        self.assertIn("Text Mining Semantic", labels)
+        commands = {label: cmd for label, cmd in steps}
+        self.assertIn("local/model", commands["Text Mining Semantic"])
 
     def test_chinese_review_platform_builds_context_draft_markdown_and_html(self):
         with tempfile.TemporaryDirectory() as td:

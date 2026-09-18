@@ -60,7 +60,25 @@ python scripts/weread.py build-private --include-private --with-text
 
 The output lives under your local data directory and is gitignored.
 
-## 7. Try it without an API key
+## 7. Optional semantic text mining
+
+Text Mining Lite is already included in every Private Lab build.
+
+For local embedding clusters, cross-book semantic neighbors and corpus drift:
+
+```bash
+pip install -r requirements-text-mining.txt
+python scripts/weread.py build-private \
+  --include-private \
+  --semantic-text \
+  --embedding-model "MODEL_OR_LOCAL_PATH"
+```
+
+The semantic layer is private-only. Similarity is not interpreted as agreement, causality, personality or diagnosis.
+
+See [text-mining.md](text-mining.md).
+
+## 8. Try it without an API key
 
 ```bash
 python scripts/weread.py sample
@@ -68,7 +86,7 @@ python scripts/weread.py sample
 
 This builds the UI from synthetic fixtures under `examples/sample-data/`.
 
-## 8. Optional GitHub Pages
+## 9. Optional GitHub Pages
 
 For automatic Pages deployment:
 

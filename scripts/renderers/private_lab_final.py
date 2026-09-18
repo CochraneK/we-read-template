@@ -35,6 +35,7 @@ def parse_args():
     parser.add_argument("--blindspot", type=Path, default=base.LAB / "blindspot_context.json")
     parser.add_argument("--review", type=Path, default=base.LAB / "narrative_review_context.json")
     parser.add_argument("--quote-cards", type=Path, default=base.LAB / "quote_cards.html")
+    parser.add_argument("--text-mining-report", type=Path, default=base.LAB / "text_mining.html")
     parser.add_argument("--alchemy-topic-report", type=Path, default=base.LAB / "alchemy_topic.html")
     parser.add_argument("--alchemy-book-report", type=Path, default=base.LAB / "alchemy_book.html")
     parser.add_argument("--advisor-report", type=Path, default=base.LAB / "advisor.html")
@@ -72,6 +73,7 @@ def main():
         quote_cards_exists=quote_cards_exists,
     )
     assets = {
+        "textMining": _asset_exists(args.text_mining_report, out_dir, "text_mining.html"),
         "alchemyTopic": _asset_exists(args.alchemy_topic_report, out_dir, "alchemy_topic.html"),
         "alchemyBook": _asset_exists(args.alchemy_book_report, out_dir, "alchemy_book.html"),
         "advisor": _asset_exists(args.advisor_report, out_dir, "advisor.html"),

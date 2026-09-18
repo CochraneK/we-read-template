@@ -23,6 +23,7 @@ Lite includes:
 
 - mixed Chinese/English lexical units;
 - TF-IDF term ranking;
+- Source-vs-Self contrastive lexical terms (smoothed log ratio);
 - source-highlight vs user-thought corpora;
 - lexical diversity;
 - document-level co-occurrence and positive-PMI edges;
@@ -77,9 +78,11 @@ You can also set:
 export WEREAD_EMBEDDING_MODEL="/path/to/local/model"
 ```
 
-The semantic layer adds:
+The semantic layer adds multiple competing topic views so no single model is treated as ground truth:
 
 - embedding clusters;
+- NMF classical topic baseline;
+- LDA classical topic baseline;
 - cross-book nearest-neighbor evidence;
 - yearly corpus centroid drift;
 - source → self semantic-alignment candidates.

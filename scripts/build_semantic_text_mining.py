@@ -28,12 +28,17 @@ def require_dependencies():
         from sentence_transformers import SentenceTransformer
         from sklearn.cluster import KMeans
         from sklearn.neighbors import NearestNeighbors
+        from sklearn.decomposition import NMF, LatentDirichletAllocation
+        from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
     except ImportError as exc:
         raise SystemExit(
             "ERROR: semantic text mining dependencies are missing. "
             "Install: pip install -r requirements-text-mining.txt"
         ) from exc
-    return np, SentenceTransformer, KMeans, NearestNeighbors
+    return (
+        np, SentenceTransformer, KMeans, NearestNeighbors,
+        NMF, LatentDirichletAllocation, TfidfVectorizer, CountVectorizer,
+    )
 
 
 def cluster_count(n: int, explicit: int) -> int:
@@ -73,6 +78,74 @@ def cluster_labels(rows: list[dict], labels, k: int) -> list[dict]:
             "status": "embedding_cluster_candidate",
         })
     result.sort(key=lambda x: (-x["documents"], x["cluster"]))
+    return result
+
+
+
+def _topic_rows(model, feature_names, assignments, k: int, method: str) -> list[dict]:
+    rows = []
+    counts = Counter(int(x) for x in assignments)
+    for topic_id in range(k):
+        component = model.components_[topic_id]
+        top = component.argsort()[::-1][:12]
+        terms = [str(feature_names[i]) for i in top if component[i] > 0]
+        rows.append({
+            "topic": topic_id,
+            "label": " / ".join(terms[:3]) if terms else f"{method}-{topic_id}",
+            "terms": terms,
+            "documents": counts.get(topic_id, 0),
+            "method": method,
+            "status": "classical_topic_candidate",
+        })
+    rows.sort(key=lambda x: (-x["documents"], x["topic"]))
+    return rows
+
+
+def classical_topics(rows: list[dict], k: int, NMF, LDA, TfidfVectorizer, CountVectorizer) -> dict:
+    docs = [" ".join(lite.tokenize(row["text"])) for row in rows]
+    docs = [doc if doc.strip() else "__empty__" for doc in docs]
+    result = {"nmf": [], "lda": [], "note": "Classical baselines over Lite lexical units; compare with embedding clusters rather than treating one model as truth."}
+
+    try:
+        tfidf = TfidfVectorizer(token_pattern=r"(?u)\b\w+\b", min_df=2, max_features=4000)
+        x_tfidf = tfidf.fit_transform(docs)
+    except ValueError:
+        tfidf = TfidfVectorizer(token_pattern=r"(?u)\b\w+\b", min_df=1, max_features=4000)
+        x_tfidf = tfidf.fit_transform(docs)
+    if min(x_tfidf.shape) >= 2:
+        topic_k = max(2, min(k, x_tfidf.shape[0], x_tfidf.shape[1]))
+        nmf = NMF(n_components=topic_k, random_state=42, init="nndsvda", max_iter=500)
+        weights = nmf.fit_transform(x_tfidf)
+        result["nmf"] = _topic_rows(
+            nmf,
+            tfidf.get_feature_names_out(),
+            weights.argmax(axis=1),
+            topic_k,
+            "NMF",
+        )
+
+    try:
+        count_vec = CountVectorizer(token_pattern=r"(?u)\b\w+\b", min_df=2, max_features=4000)
+        x_count = count_vec.fit_transform(docs)
+    except ValueError:
+        count_vec = CountVectorizer(token_pattern=r"(?u)\b\w+\b", min_df=1, max_features=4000)
+        x_count = count_vec.fit_transform(docs)
+    if min(x_count.shape) >= 2:
+        topic_k = max(2, min(k, x_count.shape[0], x_count.shape[1]))
+        lda = LDA(
+            n_components=topic_k,
+            random_state=42,
+            learning_method="batch",
+            max_iter=20,
+        )
+        weights = lda.fit_transform(x_count)
+        result["lda"] = _topic_rows(
+            lda,
+            count_vec.get_feature_names_out(),
+            weights.argmax(axis=1),
+            topic_k,
+            "LDA",
+        )
     return result
 
 
@@ -194,7 +267,10 @@ def source_self_alignment(rows, embeddings, NearestNeighbors, limit: int = 60) -
 
 
 def build(context: dict, *, model_name: str, clusters: int = 0, max_docs: int = 5000) -> dict:
-    np, SentenceTransformer, KMeans, NearestNeighbors = require_dependencies()
+    (
+        np, SentenceTransformer, KMeans, NearestNeighbors,
+        NMF, LDA, TfidfVectorizer, CountVectorizer,
+    ) = require_dependencies()
     rows = lite.evidence_rows(context)
     if max_docs > 0 and len(rows) > max_docs:
         rows = rows[-max_docs:]
@@ -225,12 +301,15 @@ def build(context: dict, *, model_name: str, clusters: int = 0, max_docs: int = 
         "documents": len(rows),
         "clusterCount": k,
         "clusters": cluster_labels(rows, labels, k),
+        "classicalTopics": classical_topics(
+            rows, k, NMF, LDA, TfidfVectorizer, CountVectorizer
+        ),
         "crossBookSimilarity": cross_book_neighbors(rows, embeddings, NearestNeighbors),
         "yearlyDrift": yearly_drift(rows, embeddings, np),
         "sourceSelfAlignment": source_self_alignment(rows, embeddings, NearestNeighbors),
         "guardrails": [
             "Embedding similarity means representational proximity, not agreement, causality, truth, or contradiction.",
-            "Clusters are candidate themes requiring inspection of evidence.",
+            "Embedding, NMF and LDA topics are competing candidate views; agreement across methods is stronger evidence than any single model.",
             "Corpus drift describes changes in the reading-text corpus, not a direct measurement of the user's mind.",
             "Source→self alignment is a retrieval candidate, not proof that a source caused a later thought.",
             "This script does not infer sensitive traits, diagnosis, ideology, or personality.",

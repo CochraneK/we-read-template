@@ -152,8 +152,8 @@ Local evidence workflows including:
 - SQLite evidence search;
 - Recall / Feynman / spaced review;
 - Deep Notes;
-- Text Mining Lite: TF-IDF, lexical communities, burst/resurgence, novelty, Source→Self lag;
-- optional local semantic embeddings: clusters, cross-book neighbors, corpus drift;
+- Text Mining Lite: TF-IDF, Source-vs-Self contrastive terms, lexical communities, burst/resurgence, novelty, Source→Self lag;
+- optional local semantic layer: embedding clusters + NMF/LDA baselines, cross-book neighbors, corpus drift;
 - Quote Cards;
 - Alchemy synthesis;
 - Narrative Review;

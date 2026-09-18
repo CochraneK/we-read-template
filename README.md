@@ -4,7 +4,7 @@
 
 **Build your own local-first, evidence-traceable reading intelligence system from WeRead.**
 
-Public Reading Archive · Private Reading Lab · Search · Recall · Deep Notes · Advisor · Reading Path · Book → Skill
+Public Reading Archive · Private Reading Lab · Search · Recall · Deep Notes · Text Mining · Advisor · Reading Path · Book → Skill
 
 <p>
   <a href="https://github.com/CochraneK/we-read-template/actions/workflows/test.yml"><img alt="tests" src="https://github.com/CochraneK/we-read-template/actions/workflows/test.yml/badge.svg"></a>
@@ -63,6 +63,15 @@ python scripts/weread.py build-private --include-private --with-text
 ```
 
 The Private Lab can contain raw highlights, your own reviews/thoughts, local Search, Recall, Deep Notes, Quote Cards, Alchemy and other evidence-heavy workflows. It stays under your local data directory.
+
+Text Mining Lite is included automatically. Optional semantic analysis:
+
+```bash
+pip install -r requirements-text-mining.txt
+python scripts/weread.py build-private --include-private --semantic-text --embedding-model "MODEL_OR_LOCAL_PATH"
+```
+
+See [docs/text-mining.md](docs/text-mining.md) for interpretation boundaries.
 
 ## Safe public defaults
 
@@ -143,6 +152,8 @@ Local evidence workflows including:
 - SQLite evidence search;
 - Recall / Feynman / spaced review;
 - Deep Notes;
+- Text Mining Lite: TF-IDF, lexical communities, burst/resurgence, novelty, Source→Self lag;
+- optional local semantic embeddings: clusters, cross-book neighbors, corpus drift;
 - Quote Cards;
 - Alchemy synthesis;
 - Narrative Review;
@@ -178,7 +189,7 @@ More detail: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 | `python scripts/weread.py doctor` | check environment and data readiness |
 | `python scripts/weread.py sync` | fetch shelf, notes, reading stats and enrichment |
 | `python scripts/weread.py build-public` | generate the public archive |
-| `python scripts/weread.py build-private` | generate the Private Reading Lab |
+| `python scripts/weread.py build-private` | generate the Private Reading Lab + Text Mining Lite |
 | `python scripts/weread.py sample` | build with synthetic data |
 | `python scripts/weread.py all` | sync and build both surfaces |
 

@@ -37,3 +37,12 @@ A no-key demo must continue to work through:
 ```bash
 python scripts/weread.py sample
 ```
+
+
+## Text Mining
+
+The Private Lab always builds zero-dependency Text Mining Lite. Keep `source_text` and `user_thought` separate.
+
+Optional semantic analysis is local-only and opt-in through `--semantic-text --embedding-model ...`.
+
+Never turn lexical or embedding similarity into claims of agreement, causality, personality, diagnosis, ideology or other sensitive traits. Treat clusters, drift and Source→Self links as evidence candidates. See `docs/text-mining.md`.

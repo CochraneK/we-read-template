@@ -43,7 +43,8 @@ def filtered_notes(raw_notes: list, context: dict) -> list[dict]:
 
 def build_steps(out_dir: Path, *, include_private: bool, with_text: bool, topic: str, book_id: str,
                 review_start: str, review_end: str, review_platform: str,
-                semantic_text: bool = False, embedding_model: str = "") -> list[tuple[str, list[str]]]:
+                semantic_text: bool = False, embedding_model: str = "",
+                nli_text: bool = False, nli_model: str = "") -> list[tuple[str, list[str]]]:
     context = out_dir / "visualization_context.json"
     steps: list[tuple[str, list[str]]] = []
     context_cmd = ["scripts/build_visualization_context.py", "--output", str(context)]
@@ -66,10 +67,20 @@ def build_steps(out_dir: Path, *, include_private: bool, with_text: bool, topic:
         if embedding_model:
             semantic_cmd.extend(["--model", embedding_model])
         steps.append(("Text Mining Semantic", semantic_cmd))
+    if nli_text:
+        nli_cmd = [
+            "scripts/build_nli_relations.py", "--semantic", str(out_dir / "text_mining_semantic.json"),
+            "--output", str(out_dir / "text_mining_nli.json"),
+        ]
+        if nli_model:
+            nli_cmd.extend(["--model", nli_model])
+        steps.append(("Text Mining NLI", nli_cmd))
     steps.append((
         "Text Mining Report",
         ["scripts/renderers/text_mining_private.py", "--input", str(out_dir / "text_mining_context.json"),
-         "--semantic", str(out_dir / "text_mining_semantic.json"), "--output", str(out_dir / "text_mining.html")],
+         "--semantic", str(out_dir / "text_mining_semantic.json"),
+         "--nli", str(out_dir / "text_mining_nli.json"),
+         "--output", str(out_dir / "text_mining.html")],
     ))
     review_platform_code = REVIEW_PLATFORM_CODES.get(review_platform, review_platform)
     review_context = out_dir / "narrative_review_context.json"
@@ -216,6 +227,8 @@ def parse_args():
     parser.add_argument("--review-platform", choices=["", "朋友圈", "公众号", "小红书", "视频脚本", "个人日记"], default="")
     parser.add_argument("--semantic-text", action="store_true", help="Run optional local embedding analysis; requires requirements-text-mining.txt.")
     parser.add_argument("--embedding-model", default=os.environ.get("WEREAD_EMBEDDING_MODEL", ""), help="SentenceTransformer local path/model id; required with --semantic-text.")
+    parser.add_argument("--nli-text", action="store_true", help="Run optional local NLI over semantic cross-book candidate pairs.")
+    parser.add_argument("--nli-model", default=os.environ.get("WEREAD_NLI_MODEL", ""), help="Local/model id with explicit entailment/contradiction labels; required with --nli-text.")
     return parser.parse_args()
 
 
@@ -231,6 +244,10 @@ def main():
         raise SystemExit("ERROR: --advisor-semantic-annotations requires --advisor-query")
     if args.semantic_text and not args.embedding_model.strip():
         raise SystemExit("ERROR: --semantic-text requires --embedding-model or WEREAD_EMBEDDING_MODEL")
+    if args.nli_text and not args.semantic_text:
+        raise SystemExit("ERROR: --nli-text requires --semantic-text because NLI consumes semantic candidate pairs")
+    if args.nli_text and not args.nli_model.strip():
+        raise SystemExit("ERROR: --nli-text requires --nli-model or WEREAD_NLI_MODEL")
 
     out_dir = args.output_dir.expanduser().resolve()
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -239,6 +256,7 @@ def main():
         topic=args.topic.strip(), book_id=args.book_id.strip(), review_start=args.review_start,
         review_end=args.review_end, review_platform=args.review_platform,
         semantic_text=args.semantic_text, embedding_model=args.embedding_model.strip(),
+        nli_text=args.nli_text, nli_model=args.nli_model.strip(),
     ):
         print(f"==> {label}")
         run_step(command)
@@ -274,6 +292,8 @@ def main():
         "includesTextMiningLite": True,
         "includesSemanticTextMining": bool(args.semantic_text),
         "embeddingModel": args.embedding_model.strip() or None,
+        "includesNLITextMining": bool(args.nli_text),
+        "nliModel": args.nli_model.strip() or None,
         "includesBrowserLocalRecallHistory": True,
         "includesRecallAnswerHistory": True,
         "includesAlchemySynthesisReport": bool(args.with_text and (args.topic.strip() or args.book_id.strip())),
@@ -297,7 +317,7 @@ def main():
     print(
         f"private-reading-lab: {out_dir / 'index.html'} | quote_cards={args.with_text} "
         f"review={bool(args.review_platform)} advisor_live={bool(args.advisor_query.strip())} path={bool(args.path_topic.strip())} "
-        f"text_mining=true semantic_text={bool(args.semantic_text)} "
+        f"text_mining=true semantic_text={bool(args.semantic_text)} nli_text={bool(args.nli_text)} "
         f"validated=true raw_evidence=true recall_history=browser-local public_page_safe=false"
     )
 

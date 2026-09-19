@@ -16,6 +16,7 @@ def load(name, path):
 
 lite = load("weread_text_mining", ROOT / "scripts" / "build_text_mining_context.py")
 semantic = load("weread_semantic_text_mining", ROOT / "scripts" / "build_semantic_text_mining.py")
+nli = load("weread_nli_text_mining", ROOT / "scripts" / "build_nli_relations.py")
 renderer = load("weread_text_mining_renderer", ROOT / "scripts" / "renderers" / "text_mining_private.py")
 
 
@@ -88,6 +89,31 @@ class TextMiningTests(unittest.TestCase):
         self.assertIn("not semantic novelty", result["novelty"]["method"])
         self.assertTrue(result["novelty"]["mostNovel"])
 
+    def test_temporal_change_points_and_exploration_are_bounded(self):
+        result = lite.build(fixture())
+        change = result["temporal"]["changePoints"]
+        self.assertIn("Jensen-Shannon", change["method"])
+        self.assertTrue(change["transitions"])
+        balance = result["novelty"]["explorationExploitation"]
+        self.assertIn("not a utility", balance["meaning"])
+        self.assertTrue(balance["byYear"])
+
+    def test_concept_network_evolution_is_lexical(self):
+        result = lite.build(fixture())
+        network = result["temporal"]["networkEvolution"]
+        self.assertIn("lexical", network["method"])
+        self.assertTrue(network["snapshots"])
+
+    def test_nli_label_mapping_requires_semantic_labels(self):
+        class Good:
+            id2label = {0: "contradiction", 1: "neutral", 2: "entailment"}
+        class Bad:
+            id2label = {0: "LABEL_0", 1: "LABEL_1", 2: "LABEL_2"}
+        mapped = nli.label_map(Good())
+        self.assertEqual(mapped[0], "contradiction")
+        with self.assertRaises(ValueError):
+            nli.label_map(Bad())
+
     def test_semantic_cluster_count_is_bounded_without_loading_models(self):
         self.assertEqual(semantic.cluster_count(4, 0), 2)
         self.assertLessEqual(semantic.cluster_count(5000, 0), 12)
@@ -95,10 +121,12 @@ class TextMiningTests(unittest.TestCase):
 
     def test_renderer_marks_private_boundary_and_optional_semantic(self):
         result = lite.build(fixture())
-        page = renderer.render(result, {})
+        page = renderer.render(result, {}, {})
         self.assertIn("Private / Raw Evidence", page)
         self.assertIn("Reading Corpus Lab", page)
         self.assertIn("Semantic Mining", page)
+        self.assertIn("年度语料分布转折", page)
+        self.assertIn("Support / Contradiction Candidates", page)
         self.assertIn("not generated", page)
         self.assertNotIn("fetch(", page)
 

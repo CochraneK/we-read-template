@@ -31,7 +31,10 @@ Lite includes:
 - yearly term profiles;
 - burst detection;
 - concept resurgence candidates;
+- Jensen–Shannon year-to-year lexical change-point candidates;
+- yearly lexical concept-network evolution;
 - TF-IDF lexical novelty / redundancy;
+- lexical exploration / bridge / exploitation proxy;
 - lexical exposure → expression lag;
 - explicit rhetorical-language signals in user-authored reviews.
 
@@ -89,7 +92,41 @@ The semantic layer adds multiple competing topic views so no single model is tre
 
 The script performs local embedding/inference. A model identifier may cause the model library to download model weights, but this implementation does not send reading text to a remote inference API.
 
-## 3. What it intentionally does not claim
+## 3. NLI — optional local support/contradiction candidates
+
+NLI only runs after the semantic layer has already reduced the search space to cross-book semantic neighbors:
+
+```text
+all evidence
+→ semantic nearest-neighbor candidates
+→ local NLI
+→ entailment / contradiction / unresolved candidates
+```
+
+Example:
+
+```bash
+python scripts/build_private_reading_lab.py \
+  --include-private \
+  --semantic-text \
+  --embedding-model "MODEL_OR_LOCAL_PATH" \
+  --nli-text \
+  --nli-model "NLI_MODEL_OR_LOCAL_PATH"
+```
+
+Or set:
+
+```bash
+export WEREAD_NLI_MODEL="/path/to/local/nli-model"
+```
+
+The selected NLI model must expose explicit `entailment` and `contradiction` labels in `id2label`. Generic `LABEL_0` mappings are rejected rather than guessed.
+
+NLI is run in both directions for each pair because entailment is directional.
+
+A `contradiction_candidate` means only that the model assigns high contradiction probability to two snippets. It is **not** proof that whole books, authors, theories, or the user contradict one another.
+
+## 4. What it intentionally does not claim
 
 The following are prohibited interpretations:
 
@@ -98,6 +135,9 @@ The following are prohibited interpretations:
 - cluster = objective topic taxonomy;
 - source → self alignment = proof of internalization;
 - corpus drift = direct measurement of the user's mind;
+- Jensen–Shannon change-point = psychological turning point;
+- lexical exploration/exploitation = learning quality or optimal strategy;
+- NLI contradiction candidate = proven logical contradiction between whole books;
 - rhetorical markers = emotion, diagnosis, personality, ideology, religion, politics, or other sensitive traits.
 
 The right language is:
@@ -120,7 +160,7 @@ this book changed you
 your personality is
 ```
 
-## 4. Core research objects
+## 5. Core research objects
 
 The Text Mining Lab treats five layers separately:
 
@@ -147,7 +187,7 @@ Useful questions include:
 
 Every result should remain traceable to book / evidence IDs rather than becoming an unsupported personality story.
 
-## 5. Privacy
+## 6. Privacy
 
 All Text Mining Lab artifacts are private-only.
 

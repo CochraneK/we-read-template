@@ -71,6 +71,15 @@ pip install -r requirements-text-mining.txt
 python scripts/weread.py build-private --include-private --semantic-text --embedding-model "MODEL_OR_LOCAL_PATH"
 ```
 
+Optional local NLI can be added after semantic candidates:
+
+```bash
+python scripts/weread.py build-private \
+  --include-private \
+  --semantic-text --embedding-model "MODEL_OR_LOCAL_PATH" \
+  --nli-text --nli-model "NLI_MODEL_OR_LOCAL_PATH"
+```
+
 See [docs/text-mining.md](docs/text-mining.md) for interpretation boundaries.
 
 ## Safe public defaults
@@ -153,7 +162,7 @@ Local evidence workflows including:
 - Recall / Feynman / spaced review;
 - Deep Notes;
 - Text Mining Lite: TF-IDF, Source-vs-Self contrastive terms, lexical communities, burst/resurgence, novelty, Source→Self lag;
-- optional local semantic layer: embedding clusters + NMF/LDA baselines, cross-book neighbors, corpus drift;
+- optional local semantic layer: embedding clusters + NMF/LDA baselines, cross-book neighbors, corpus drift, and optional NLI relation candidates;
 - Quote Cards;
 - Alchemy synthesis;
 - Narrative Review;

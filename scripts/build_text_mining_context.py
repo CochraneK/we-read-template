@@ -348,6 +348,124 @@ def burst_and_resurgence(rows: list[dict], counters: list[Counter], df: Counter,
     return bursts[:limit], resurgence[:limit]
 
 
+
+def _distribution(counter: Counter, vocab: list[str], alpha: float = 0.5) -> list[float]:
+    total = sum(counter.get(term, 0) for term in vocab) + alpha * max(1, len(vocab))
+    return [(counter.get(term, 0) + alpha) / total for term in vocab]
+
+
+def _js_divergence(p: list[float], q: list[float]) -> float:
+    m = [(a + b) / 2.0 for a, b in zip(p, q)]
+
+    def kl(a, b):
+        return sum(x * log2(x / y) for x, y in zip(a, b) if x > 0 and y > 0)
+
+    return (kl(p, m) + kl(q, m)) / 2.0
+
+
+def temporal_change_points(rows: list[dict], counters: list[Counter], limit_terms: int = 500) -> dict:
+    """Year-to-year lexical distribution shifts using Jensen-Shannon divergence."""
+    yearly = defaultdict(Counter)
+    global_df = Counter()
+    docs = Counter()
+    for row, counter in zip(rows, counters):
+        year = row.get("year")
+        if not year:
+            continue
+        yearly[year].update(counter.keys())
+        global_df.update(counter.keys())
+        docs[year] += 1
+    years = sorted(yearly)
+    vocab = [term for term, _ in global_df.most_common(limit_terms)]
+    transitions = []
+    for left, right in zip(years, years[1:]):
+        p = _distribution(yearly[left], vocab)
+        q = _distribution(yearly[right], vocab)
+        js = _js_divergence(p, q)
+        left_share = {term: yearly[left][term] / max(1, docs[left]) for term in vocab}
+        right_share = {term: yearly[right][term] / max(1, docs[right]) for term in vocab}
+        rising = sorted(
+            ((right_share[t] - left_share[t], t) for t in vocab if right_share[t] > left_share[t]),
+            reverse=True,
+        )[:10]
+        falling = sorted(
+            ((left_share[t] - right_share[t], t) for t in vocab if left_share[t] > right_share[t]),
+            reverse=True,
+        )[:10]
+        transitions.append({
+            "fromYear": left,
+            "toYear": right,
+            "jensenShannon": round(js, 4),
+            "fromDocuments": docs[left],
+            "toDocuments": docs[right],
+            "risingTerms": [{"term": term, "deltaShare": round(delta, 4)} for delta, term in rising],
+            "fallingTerms": [{"term": term, "deltaShare": round(delta, 4)} for delta, term in falling],
+            "status": "lexical_distribution_shift",
+        })
+
+    values = sorted(x["jensenShannon"] for x in transitions)
+    if values:
+        median = values[len(values) // 2]
+        deviations = sorted(abs(x - median) for x in values)
+        mad = deviations[len(deviations) // 2] if deviations else 0.0
+        threshold = median + 1.5 * mad
+        for row in transitions:
+            row["changePointCandidate"] = bool(
+                len(transitions) >= 3 and row["jensenShannon"] >= threshold and row["jensenShannon"] > median
+            )
+    else:
+        median = mad = threshold = 0.0
+    return {
+        "method": "year-to-year Jensen-Shannon divergence over smoothed document-frequency lexical distributions",
+        "median": round(median, 4),
+        "mad": round(mad, 4),
+        "candidateThreshold": round(threshold, 4),
+        "transitions": transitions,
+    }
+
+
+def concept_network_evolution(rows: list[dict], counters: list[Counter], idf: dict[str, float]) -> dict:
+    """Compact yearly lexical co-occurrence-network summaries."""
+    by_year = defaultdict(list)
+    for index, row in enumerate(rows):
+        if row.get("year"):
+            by_year[row["year"]].append(index)
+    snapshots = []
+    previous_nodes: set[str] = set()
+    for year in sorted(by_year):
+        indices = by_year[year]
+        scoped_rows = [rows[i] for i in indices]
+        scoped_counters = [counters[i] for i in indices]
+        scoped_df = Counter()
+        for counter in scoped_counters:
+            scoped_df.update(counter.keys())
+        edges, _ = cooccurrence(scoped_rows, scoped_counters, scoped_df, idf, limit=150)
+        degree = Counter()
+        for edge in edges:
+            degree[edge["source"]] += edge["support"]
+            degree[edge["target"]] += edge["support"]
+        nodes = set(degree)
+        new_nodes = nodes - previous_nodes
+        retired_nodes = previous_nodes - nodes if previous_nodes else set()
+        possible = len(nodes) * (len(nodes) - 1) / 2
+        snapshots.append({
+            "year": year,
+            "documents": len(indices),
+            "nodes": len(nodes),
+            "edges": len(edges),
+            "density": round(len(edges) / possible, 4) if possible else 0.0,
+            "topHubs": [{"term": term, "weightedDegree": score} for term, score in degree.most_common(10)],
+            "newTerms": sorted(new_nodes, key=lambda t: (-degree[t], t))[:12],
+            "retiredTerms": sorted(retired_nodes)[:12],
+            "status": "lexical_cooccurrence_network_snapshot",
+        })
+        previous_nodes = nodes
+    return {
+        "method": "yearly positive-PMI document co-occurrence snapshots; hubs are lexical network hubs, not psychological importance",
+        "snapshots": snapshots,
+    }
+
+
 def sparse_vector(counter: Counter, idf: dict[str, float]) -> dict[str, float]:
     length = max(1, sum(counter.values()))
     vec = {term: (count / length) * idf.get(term, 1.0) for term, count in counter.items()}
@@ -369,6 +487,7 @@ def novelty(rows: list[dict], counters: list[Counter], idf: dict[str, float]) ->
     year_values = defaultdict(list)
     role_values = defaultdict(list)
     top_novel = []
+    all_values = []
     seen_terms = set()
 
     for i, (row, counter, vector) in enumerate(zip(rows, counters, vectors)):
@@ -392,7 +511,7 @@ def novelty(rows: list[dict], counters: list[Counter], idf: dict[str, float]) ->
         if year:
             year_values[year].append(value)
         role_values[row["role"]].append(value)
-        top_novel.append({
+        novelty_row = {
             "evidenceId": row["id"],
             "role": row["role"],
             "bookId": row["bookId"],
@@ -403,13 +522,37 @@ def novelty(rows: list[dict], counters: list[Counter], idf: dict[str, float]) ->
             "newLexicalUnitShare": round(new_share, 4),
             "nearestPriorEvidenceId": rows[best_index]["id"] if best_index is not None else None,
             "snippet": row["text"][:180],
-        })
+        }
+        top_novel.append(novelty_row)
+        all_values.append(novelty_row)
         for term in vector:
             postings[term].append(i)
 
     top_novel.sort(key=lambda x: (-x["novelty"], -x["newLexicalUnitShare"], x["evidenceId"]))
+    balance = []
+    by_year_rows = defaultdict(list)
+    for row in all_values:
+        if row.get("date"):
+            by_year_rows[row["date"][:4]].append(row)
+    for year, vals in sorted(by_year_rows.items()):
+        exploitation = sum(1 for x in vals if x["novelty"] <= 0.35)
+        exploration = sum(1 for x in vals if x["novelty"] >= 0.65)
+        bridge = len(vals) - exploitation - exploration
+        balance.append({
+            "year": year,
+            "documents": len(vals),
+            "exploitationShare": round(exploitation / len(vals), 4),
+            "bridgeShare": round(bridge / len(vals), 4),
+            "explorationShare": round(exploration / len(vals), 4),
+            "status": "lexical_exploration_exploitation_proxy",
+        })
     return {
         "method": "TF-IDF cosine against candidate prior documents sharing lexical units; not semantic novelty",
+        "explorationExploitation": {
+            "thresholds": {"exploitationMaxNovelty": 0.35, "explorationMinNovelty": 0.65},
+            "byYear": balance,
+            "meaning": "Lexical novelty proxy for repetition vs exploration; not a utility or learning-quality score.",
+        },
         "byYear": [
             {"year": year, "meanNovelty": round(sum(vals) / len(vals), 4), "documents": len(vals)}
             for year, vals in sorted(year_values.items())
@@ -530,6 +673,8 @@ def build(context: dict) -> dict:
             "yearlyTerms": temporal_terms(rows, counters, idf),
             "bursts": bursts,
             "resurgence": resurgence,
+            "changePoints": temporal_change_points(rows, counters),
+            "networkEvolution": concept_network_evolution(rows, counters, idf),
         },
         "novelty": novelty(rows, counters, idf),
         "exposureExpression": {
@@ -542,7 +687,10 @@ def build(context: dict) -> dict:
             "User reviews are expression evidence but must not be generalized into personality or sensitive-trait claims.",
             "Chinese Lite tokenization uses character bi/tri-grams, not linguistic word segmentation.",
             "Lexical communities are topic candidates, not semantic topic labels.",
-            "Lexical novelty is not semantic novelty.",
+            "Lexical novelty is not semantic novelty, learning quality, or creativity.",
+            "Jensen-Shannon change points describe corpus distribution shifts, not direct mental-state changes.",
+            "Exploration/exploitation is only a lexical novelty proxy, not a recommendation or optimization target.",
+            "Concept-network hubs describe co-occurrence structure, not psychological importance.",
             "Exposure→expression lag is temporal lexical overlap, not proof that a book caused a later belief.",
             "All raw snippets in this artifact are private-only.",
         ],

@@ -150,6 +150,11 @@ def cmd_build_private(args: argparse.Namespace) -> int:
     model = str(getattr(args, "embedding_model", "") or "").strip()
     if model:
         extra.extend(["--embedding-model", model])
+    if getattr(args, "nli_text", False):
+        extra.append("--nli-text")
+    nli_model = str(getattr(args, "nli_model", "") or "").strip()
+    if nli_model:
+        extra.extend(["--nli-model", nli_model])
     run_script("scripts/build_private_reading_lab.py", *extra)
     print(f"private lab: {data_dir() / 'analysis' / 'private_lab' / 'index.html'}")
     return 0
@@ -184,12 +189,16 @@ def parser() -> argparse.ArgumentParser:
     bp.add_argument("--with-text", action="store_true")
     bp.add_argument("--semantic-text", action="store_true", help="enable optional local embedding analysis")
     bp.add_argument("--embedding-model", default=os.environ.get("WEREAD_EMBEDDING_MODEL", ""))
+    bp.add_argument("--nli-text", action="store_true", help="enable optional local NLI over semantic candidates")
+    bp.add_argument("--nli-model", default=os.environ.get("WEREAD_NLI_MODEL", ""))
     bp.set_defaults(func=cmd_build_private)
     a = sub.add_parser("all", help="sync and build both surfaces")
     a.add_argument("--include-private", action="store_true")
     a.add_argument("--with-text", action="store_true")
     a.add_argument("--semantic-text", action="store_true")
     a.add_argument("--embedding-model", default=os.environ.get("WEREAD_EMBEDDING_MODEL", ""))
+    a.add_argument("--nli-text", action="store_true")
+    a.add_argument("--nli-model", default=os.environ.get("WEREAD_NLI_MODEL", ""))
     a.set_defaults(func=cmd_all)
     sub.add_parser("sample", help="build the synthetic starter archive").set_defaults(func=cmd_sample)
     return p

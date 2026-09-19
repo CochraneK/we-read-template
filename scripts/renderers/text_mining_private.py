@@ -35,8 +35,9 @@ def pills(rows, key="term", count_key="documents", limit=24):
     return "".join(items) or '<p class="empty">暂无足够证据。</p>'
 
 
-def render(lite: dict, semantic: dict | None = None) -> str:
+def render(lite: dict, semantic: dict | None = None, nli: dict | None = None) -> str:
     semantic = semantic or {}
+    nli = nli or {}
     coverage = lite.get("coverage") or {}
     source = (lite.get("corpora") or {}).get("source") or {}
     self_corpus = (lite.get("corpora") or {}).get("self") or {}
@@ -45,6 +46,9 @@ def render(lite: dict, semantic: dict | None = None) -> str:
     bursts = ((lite.get("temporal") or {}).get("bursts") or [])[:16]
     resurgence = ((lite.get("temporal") or {}).get("resurgence") or [])[:16]
     novelty = lite.get("novelty") or {}
+    change_points = ((lite.get("temporal") or {}).get("changePoints") or {}).get("transitions") or []
+    network_snapshots = ((lite.get("temporal") or {}).get("networkEvolution") or {}).get("snapshots") or []
+    explore_rows = ((novelty.get("explorationExploitation") or {}).get("byYear") or [])
     lags = ((lite.get("exposureExpression") or {}).get("items") or [])[:20]
     rhetoric = (lite.get("rhetoricalLanguage") or {}).get("signals") or []
     semantic_clusters = semantic.get("clusters") or []
@@ -52,6 +56,7 @@ def render(lite: dict, semantic: dict | None = None) -> str:
     semantic_pairs = semantic.get("crossBookSimilarity") or []
     semantic_drift = semantic.get("yearlyDrift") or []
     semantic_align = semantic.get("sourceSelfAlignment") or []
+    nli_pairs = nli.get("pairs") or []
 
     community_html = "".join(
         f'<article class="card"><div class="eyebrow">Lexical topic candidate</div>'
@@ -90,6 +95,40 @@ def render(lite: dict, semantic: dict | None = None) -> str:
         f'<i style="width:{max(1,round(float(row.get("share") or 0)*100,1))}%"></i></div>'
         for row in rhetoric
     )
+
+
+    change_html = "".join(
+        f'<div class="row"><b>{esc(x.get("fromYear"))} → {esc(x.get("toYear"))}</b>'
+        f'<span>JS {esc(x.get("jensenShannon"))}</span>'
+        f'<span>{"candidate" if x.get("changePointCandidate") else "shift"}</span>'
+        f'<span>{esc(x.get("fromDocuments"))} → {esc(x.get("toDocuments"))} docs</span></div>'
+        for x in change_points
+    ) or '<p class="empty">年度数据不足。</p>'
+
+    explore_html = "".join(
+        f'<div class="row"><b>{esc(x.get("year"))}</b>'
+        f'<span>exploit {round(float(x.get("exploitationShare") or 0)*100,1)}%</span>'
+        f'<span>bridge {round(float(x.get("bridgeShare") or 0)*100,1)}%</span>'
+        f'<span>explore {round(float(x.get("explorationShare") or 0)*100,1)}%</span></div>'
+        for x in explore_rows
+    ) or '<p class="empty">暂无带时间戳的 novelty 序列。</p>'
+
+    network_html = "".join(
+        f'<article class="card"><div class="eyebrow">Concept network · {esc(x.get("year"))}</div>'
+        f'<h3>{esc(" / ".join(h.get("term") for h in (x.get("topHubs") or [])[:3]))}</h3>'
+        f'<p>{x.get("nodes",0)} nodes · {x.get("edges",0)} edges · density {esc(x.get("density"))}</p>'
+        f'<small>new: {esc(" · ".join(x.get("newTerms") or []))}</small></article>'
+        for x in network_snapshots
+    ) or '<p class="empty">年度共现不足，暂未形成网络。</p>'
+
+    nli_html = "".join(
+        f'<article class="evidence"><div><b>{esc(x.get("candidate"))}</b>'
+        f'<span>conf {esc(x.get("candidateConfidence"))}</span>'
+        f'<span>sim {esc(x.get("semanticSimilarity"))}</span></div>'
+        f'<p>{esc((x.get("a") or {}).get("snippet"))}</p>'
+        f'<p>{esc((x.get("b") or {}).get("snippet"))}</p></article>'
+        for x in nli_pairs[:16]
+    ) or '<p class="empty">本次未生成 NLI，或没有候选 pair。</p>'
 
     semantic_block = (
         f'''<section class="panel" id="semantic">
@@ -163,7 +202,10 @@ python scripts/build_private_reading_lab.py --include-private --semantic-text --
 <section class="grid2" id="temporal"><article class="panel"><div class="head"><div><div class="eyebrow">Temporal burst</div><h2>突然升温的词汇</h2></div></div><div class="table">{burst_html}</div></article><article class="panel"><div class="head"><div><div class="eyebrow">Concept resurgence</div><h2>沉寂后重新出现</h2></div></div><div class="table">{resurgence_html}</div></article></section>
 <section class="grid2"><article class="panel"><div class="head"><div><div class="eyebrow">Exposure → Expression</div><h2>Lexical lag</h2><p>先出现在 source，后出现在自己的文字；只表示时间重合。</p></div></div><div class="table">{lag_html}</div></article><article class="panel"><div class="head"><div><div class="eyebrow">User-authored language</div><h2>Rhetorical signals</h2><p>问句、质疑、不确定、因果等显式语言标记，不做情绪/人格诊断。</p></div></div>{rhetoric_html}</article></section>
 <section class="panel"><div class="head"><div><div class="eyebrow">Lexical novelty</div><h2>新颖 / 重复候选</h2><p>{esc(novelty.get("method"))}</p></div></div><div class="evidence-list">{novelty_html}</div></section>
+<section class="grid2"><article class="panel"><div class="head"><div><div class="eyebrow">Change-point proxy</div><h2>年度语料分布转折</h2><p>Jensen–Shannon divergence 只描述 corpus shift。</p></div></div><div class="table">{change_html}</div></article><article class="panel"><div class="head"><div><div class="eyebrow">Exploration / exploitation</div><h2>探索–重复平衡</h2><p>基于 lexical novelty 的代理指标，不是阅读质量评分。</p></div></div><div class="table">{explore_html}</div></article></section>
+<section class="panel"><div class="head"><div><div class="eyebrow">Concept graph evolution</div><h2>年度概念共现网络</h2><p>节点和 hub 是 lexical co-occurrence 结构，不代表心理重要性。</p></div></div><div class="cards">{network_html}</div></section>
 {semantic_block}
+<section class="panel" id="nli"><div class="head"><div><div class="eyebrow">Optional local NLI</div><h2>Support / Contradiction Candidates</h2><p>只对 semantic 近邻候选做文本蕴含/矛盾检测；不是整本书逻辑判断。</p></div><span class="status">{esc(nli.get("model") or "not generated")}</span></div><div class="evidence-list">{nli_html}</div></section>
 <section class="panel"><div class="head"><div><div class="eyebrow">Guardrails</div><h2>Interpretation boundary</h2></div></div><ul>{''.join(f'<li>{esc(x)}</li>' for x in (lite.get("guardrails") or []) + (semantic.get("guardrails") or []))}</ul></section>
 </main></body></html>'''
 
@@ -172,6 +214,7 @@ def parse_args():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--input", type=Path, default=LAB / "text_mining_context.json")
     p.add_argument("--semantic", type=Path, default=LAB / "text_mining_semantic.json")
+    p.add_argument("--nli", type=Path, default=LAB / "text_mining_nli.json")
     p.add_argument("--output", type=Path, default=LAB / "text_mining.html")
     return p.parse_args()
 
@@ -182,11 +225,12 @@ def main():
     if not lite:
         raise SystemExit(f"ERROR: missing/invalid text mining context: {args.input}")
     semantic = read_json(args.semantic, {})
+    nli = read_json(args.nli, {})
     args.output.parent.mkdir(parents=True, exist_ok=True)
-    args.output.write_text(render(lite, semantic), encoding="utf-8")
+    args.output.write_text(render(lite, semantic, nli), encoding="utf-8")
     print(
         f"text-mining-report: {args.output} | docs={(lite.get('coverage') or {}).get('documents',0)} "
-        f"semantic={bool(semantic.get('enabled'))} private=true"
+        f"semantic={bool(semantic.get('enabled'))} nli={bool(nli.get('enabled'))} private=true"
     )
 
 

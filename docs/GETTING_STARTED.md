@@ -76,6 +76,17 @@ python scripts/weread.py build-private \
 
 The semantic layer is private-only. Similarity is not interpreted as agreement, causality, personality or diagnosis.
 
+Optional NLI over cross-book semantic candidates:
+
+```bash
+python scripts/weread.py build-private \
+  --include-private \
+  --semantic-text --embedding-model "MODEL_OR_LOCAL_PATH" \
+  --nli-text --nli-model "NLI_MODEL_OR_LOCAL_PATH"
+```
+
+NLI outputs are candidate text-pair relations, not whole-book logical judgments.
+
 See [text-mining.md](text-mining.md).
 
 ## 8. Try it without an API key

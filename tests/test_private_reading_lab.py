@@ -73,6 +73,32 @@ class PrivateReadingLabTests(unittest.TestCase):
         commands = {label: cmd for label, cmd in steps}
         self.assertIn("local/model", commands["Text Mining Semantic"])
 
+    def test_nli_text_mode_requires_semantic_candidate_step(self):
+        with tempfile.TemporaryDirectory() as td:
+            out = Path(td)
+            steps = lab.build_steps(
+                out,
+                include_private=True,
+                with_text=False,
+                topic="",
+                book_id="",
+                review_start="2026-01-01",
+                review_end="2026-09-14",
+                review_platform="",
+                semantic_text=True,
+                embedding_model="local/embed",
+                nli_text=True,
+                nli_model="local/nli",
+            )
+        labels = [label for label, _ in steps]
+        self.assertIn("Text Mining Semantic", labels)
+        self.assertIn("Text Mining NLI", labels)
+        commands = {label: cmd for label, cmd in steps}
+        self.assertIn("local/nli", commands["Text Mining NLI"])
+        report = commands["Text Mining Report"]
+        self.assertIn("--nli", report)
+        self.assertIn(str(out / "text_mining_nli.json"), report)
+
     def test_chinese_review_platform_builds_context_draft_markdown_and_html(self):
         with tempfile.TemporaryDirectory() as td:
             out=Path(td)

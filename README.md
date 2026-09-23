@@ -7,6 +7,14 @@
 Public Reading Archive · Private Reading Lab · Search · Recall · Deep Notes · Text Mining · Advisor · Reading Path · Book → Skill
 
 <p>
+  <a href="https://cochranek.github.io/we-read-template/"><strong>Live Demo</strong></a>
+  ·
+  <a href="#start-in-3-minutes"><strong>3-Minute Setup</strong></a>
+  ·
+  <a href="#safe-public-defaults"><strong>Privacy</strong></a>
+</p>
+
+<p>
   <a href="https://github.com/CochraneK/we-read-template/actions/workflows/test.yml"><img alt="tests" src="https://github.com/CochraneK/we-read-template/actions/workflows/test.yml/badge.svg"></a>
   <img alt="Python" src="https://img.shields.io/badge/Python-3.11%2B-informational">
   <img alt="privacy" src="https://img.shields.io/badge/defaults-privacy--safe-success">
@@ -19,6 +27,13 @@ Public Reading Archive · Private Reading Lab · Search · Recall · Deep Notes 
 This is the **sanitized starter distribution** of [CochraneK/we-read](https://github.com/CochraneK/we-read).
 
 It contains the reusable engine, schemas, tests, synthetic fixtures and beginner-friendly bootstrap tooling — **not the upstream owner's personal reading data**.
+
+**Want to see the result first?** Open the [Live Demo](https://cochranek.github.io/we-read-template/). It is generated from synthetic sample data, so you can inspect the full public archive experience without exposing anyone's real reading history.
+
+Two paths:
+
+- **Just explore:** open the Live Demo, or run `python scripts/weread.py sample`.
+- **Build your own:** connect your WeRead data, then run `sync → build-public`.
 
 ## Start in 3 minutes
 

@@ -3,11 +3,6 @@ name: pages
 on:
   push:
     branches: [main]
-    paths:
-      - "scripts/**"
-      - "schemas/**"
-      - "examples/sample-data/**"
-      - ".github/workflows/pages.yml"
   schedule:
     - cron: "17 3 * * *"
   workflow_dispatch:
@@ -24,6 +19,9 @@ concurrency:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     env:
       WEREAD_API_KEY: ${{ secrets.WEREAD_API_KEY }}
       WEREAD_PAGES_INCLUDE_PRIVATE: ${{ vars.WEREAD_PAGES_INCLUDE_PRIVATE || '0' }}
@@ -64,17 +62,13 @@ jobs:
           node --check /tmp/we-read-pages-inline.js
 
       - name: Configure Pages
-        if: ${{ vars.ENABLE_GITHUB_PAGES == '1' }}
         uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6
+
       - name: Upload Pages artifact
-        if: ${{ vars.ENABLE_GITHUB_PAGES == '1' }}
         uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5
         with:
           path: site
+
       - name: Deploy
-        if: ${{ vars.ENABLE_GITHUB_PAGES == '1' }}
         id: deployment
         uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5
-      - name: Pages not enabled yet
-        if: ${{ vars.ENABLE_GITHUB_PAGES != '1' }}
-        run: echo "Build validated. Enable GitHub Pages (GitHub Actions) and set repository variable ENABLE_GITHUB_PAGES=1 to deploy."

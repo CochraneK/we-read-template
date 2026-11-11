@@ -35,6 +35,20 @@ Two paths:
 - **Just explore:** open the Live Demo, or run `python scripts/weread.py sample`.
 - **Build your own:** connect your WeRead data, then run `sync → build-public`.
 
+## Use it by talking to an AI (one sentence + API key)
+
+The fastest path for a non-developer: **clone this repo, hand an AI assistant your WeRead API key, and tell it what you want in plain language.** The repo ships an AI entry guide ([docs/AI-STARTER.md](docs/AI-STARTER.md)) that teaches any AI agent the full workflow, so a request like *"visualize my WeRead reading data"* or *"make me quote cards from my highlights"* is turned into `sync → build-public` or `build-private --with-text` automatically.
+
+What the AI needs from you:
+
+1. this repository (cloned locally);
+2. a WeRead API key (`WEREAD_API_KEY`, format `wrk-...`) — paste it and the AI writes it into `.env`;
+3. a one-sentence goal.
+
+The AI then runs the right command(s) and hands you `site/index.html` (public archive) or the Private Reading Lab HTML. See [examples/nl-requests.md](examples/nl-requests.md) for a sentence → command map. Privacy defaults stay safe (private books excluded, no highlight/thought bodies published).
+
+> Note: the AI entry guide ([docs/AI-STARTER.md](docs/AI-STARTER.md)) is **template-owned**, not a third-party bundle. WorkBuddy users can copy it to `.workbuddy/skills/weread-starter/SKILL.md` for auto-discovery; any other AI can simply read the file.
+
 ## Start in 3 minutes
 
 Requirements: Python 3.11+ and a WeRead Agent Gateway key.
